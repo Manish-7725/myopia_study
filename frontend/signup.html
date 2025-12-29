@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sign Up • Myopia Study</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+
+    <style>
+        body {
+            background: #F5F7FA;
+            font-family: "Inter", sans-serif;
+        }
+
+        .signup-card {
+            background: #FFFFFF;
+            padding: 40px;
+            border-radius: 14px;
+            border: 1px solid #DFE7EE;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-title {
+            background: #E9F4FF;
+            color: #0A6EF2;
+            padding: 14px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 20px;
+            margin-bottom: 28px;
+        }
+
+        .btn-success {
+            background: #0A6EF2;
+            border-color: #0A6EF2;
+            border-radius: 8px;
+        }
+
+        .btn-success:hover {
+            background: #0756BE;
+        }
+
+        /* Password Strength Bar Height */
+        .progress {
+            height: 5px;
+            border-radius: 3px;
+
+        }
+
+        .error-msg {
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container d-flex justify-content-center align-items-center" style="min-height:100vh;">
+        <div class="col-lg-5 signup-card">
+            <div class="header-title">Create Your Account</div>
+
+            <form id="signupForm" class="w-100">
+
+                <div class="mb-3">
+                    <label class="form-label">Use Name</label>
+                    <input type="text" id="username" class="form-control w-100" placeholder="Username" required>
+                    <!-- placeholder="e.g., Dr. Jane Doe" -->
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="email" class="form-control w-100" placeholder="Email" required
+                        onkeyup="checkEmailDuplicate()">
+                </div>
+
+                <div id="emailDuplicateError" class="text-danger small mt-1 d-none">
+                    <i class="bi bi-exclamation-circle me-1"></i> This email is already registered. <a href="login.html"
+                        class="fw-bold text-danger">Sign In?</a>
+                </div>
+
+
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <div class="position-relative">
+                        <input type="password" id="password" class="form-control w-100 pe-5" placeholder="password"
+                            required minlength="8">
+                        <i class="bi bi-eye position-absolute top-50 end-0 translate-middle-y me-3"
+                            style="cursor:pointer" onclick="togglePassword('password', this)"></i>
+                    </div>
+                    <small class="text-muted">Minimum 8 characters</small>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Confirm Password</label>
+                    <div class="position-relative">
+                        <input type="password" id="confirmPassword" class="form-control  w-100 pe-5" required>
+                        <i class="bi bi-eye position-absolute top-50 end-0 translate-middle-y me-3"
+                            style="cursor:pointer" onclick="togglePassword('confirmPassword', this)"></i>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary  w-100 mt-2">
+                    Create Account
+                </button>
+
+                <div id="signupError" class="text-danger small mt-2 d-none"></div>
+
+
+                <div class="text-center mt-3">
+                    Already registered? <a href="login.html" class="fw-semibold">Sign In</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+
+    <script>
+        function togglePassword(id, icon) {
+            const input = document.getElementById(id);
+            input.type = input.type === "password" ? "text" : "password";
+            icon.classList.toggle("bi-eye");
+            icon.classList.toggle("bi-eye-slash");
+        }
+
+        document.getElementById("signupForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById("username").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value;
+            const confirmPassword = document.getElementById("confirmPassword").value;
+            const errorBox = document.getElementById("signupError");
+
+            errorBox.classList.add("d-none");
+            errorBox.innerText = "";
+
+            if (password.length < 8) {
+                errorBox.innerText = "Password must be at least 6 characters.";
+                errorBox.classList.remove("d-none");
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                errorBox.innerText = "Passwords do not match.";
+                errorBox.classList.remove("d-none");
+                return;
+            }
+
+            try {
+                const res = await fetch("http://127.0.0.1:8000/api/auth/signup/", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, email, password })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    errorBox.innerText = Object.values(data).flat().join(" ");
+                    errorBox.classList.remove("d-none");
+                    return;
+                }
+
+                alert("Signup successful! Please login.");
+                window.location.href = "login.html";
+
+            } catch {
+                errorBox.innerText = "Network error. Please try again.";
+                errorBox.classList.remove("d-none");
+            }
+        });
+    </script>
+
+
+    <!-- <script>
+
+        window.location.href = "login.html";
+
+
+        // ------------------ CLIENT-SIDE VALIDATION ---------------------
+
+       document.getElementById("signupForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const username = document.getElementById("su_username").value;
+            const email = document.getElementById("su_email").value;
+            const password = document.getElementById("su_password").value;
+
+            const res = await fetch("http://127.0.0.1:8000/api/auth/signup/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, email, password })
+            });
+
+            const data = await res.json();
+            console.log(data);
+
+            if (res.ok) {
+                alert("Signup successful!");
+            } else {
+                alert(JSON.stringify(data));
+            }
+        });
+
+                // Duplicate check (your existing mock DB)
+                const existingUsers = [
+                    "test@example.com",
+                    "user@demo.com",
+                    "admin@system.com",
+                    "rahul@gmail.com"
+                ];
+                if (existingUsers.includes(email.toLowerCase())) {
+                    showError(emailField, "Email already registered.");
+                    return false;
+                }
+
+                clearError(emailField);
+                return true;
+            
+
+            // PHONE NUMBER
+            function validatePhoneFull() {
+                const phone = document.getElementById("phoneInput");
+                if (phone.value.length !== 10) {
+                    showError(phone, "Phone must be 10 digits.");
+                    return false;
+                }
+                clearError(phone);
+                return true;
+            }
+
+            // PASSWORD
+            function validatePassword() {
+                const pass = document.getElementById("passwordInput");
+                const value = pass.value;
+
+                const strongPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$/;
+                if (!strongPattern.test(value)) {
+                    showError(pass, "Must contain 8+ chars, uppercase, number & special character.");
+                    return false;
+                }
+                clearError(pass);
+                return true;
+            }
+
+            // CONFIRM PASSWORD
+            function validateConfirm() {
+                const pass = document.getElementById("passwordInput").value;
+                const confirm = document.getElementById("confirmInput");
+
+                if (confirm.value !== pass) {
+                    showError(confirm, "Passwords do not match.");
+                    return false;
+                }
+                clearError(confirm);
+                return true;
+            }
+
+            // FORM SUBMIT
+            async function handleSignup(event) {
+                    event.preventDefault();
+
+                    const username = document.querySelector("input[name='username']").value;
+                    const email = document.querySelector("input[name='email']").value;
+                    const password = document.querySelector("input[name='password']").value;
+
+                    const response = await fetch("http://127.0.0.1:8000/api/auth/signup/", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ username, email, password })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        alert("Signup successful!");
+                        window.location.href = "login.html";
+                    } else {
+                        alert(data.error);
+                    }
+                }
+
+
+
+                function handleSignup(event) {
+                    event.preventDefault();
+                    const pass = document.getElementById('passwordInput').value;
+                    const confirm = document.getElementById('confirmInput').value;
+
+            if (pass !== confirm) {
+                alert("Passwords do not match!");
+                return;
+            }
+
+            // Simulate server request
+            alert("Account created successfully! Redirecting to login...");
+            window.location.href = "login.html";
+        }
+
+        // 3. Duplicate Email Check (Simulation)
+        function checkEmailDuplicate() {
+            const input = document.getElementById('emailInput');
+            const errorDiv = document.getElementById('emailDuplicateError');
+            const username = input.value.toLowerCase().trim();
+
+            // MOCK DATABASE: List of emails that "already exist"
+            const existingUsers = [
+                "test@example.com",
+                "user@demo.com",
+                "admin@system.com",
+                "rahul@gmail.com"
+            ];
+
+            if (existingUsers.includes(username)) {
+                // Email Found -> Show Error
+                input.classList.add('is-invalid');
+                errorDiv.classList.remove('d-none');
+            } else {
+                if (!input.classList.contains('server-invalid')) {
+                    input.classList.remove('is-invalid');
+                }
+                errorDiv.classList.add('d-none');
+            }
+        }
+
+
+        // 1. Toggle Password Visibility (Eye Icon)
+        function togglePasswordVisibility(inputId, iconSpan) {
+            const input = document.getElementById(inputId);
+            const icon = iconSpan.querySelector('i');
+
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove("bi-eye");
+                icon.classList.add("bi-eye-slash");
+            } else {
+                input.type = "password";
+                icon.classList.remove("bi-eye-slash");
+                icon.classList.add("bi-eye");
+            }
+        }
+
+        // 2. Password Strength Logic
+        function checkStrength() {
+            const password = document.getElementById('passwordInput').value;
+            const progressContainer = document.getElementById('strengthProgress');
+            const bar = document.getElementById('strengthBar');
+            const text = document.getElementById('strengthText');
+
+            // Show bars if user starts typing
+            if (password.length > 0) {
+                progressContainer.classList.remove('d-none');
+                text.classList.remove('d-none');
+            } else {
+                progressContainer.classList.add('d-none');
+                text.classList.add('d-none');
+            }
+
+            let strength = 0;
+
+            // Rules
+            if (password.length >= 8) strength += 1;
+            if (password.match(/[A-Z]/)) strength += 1; // Uppercase
+            if (password.match(/[0-9]/)) strength += 1; // Number
+            if (password.match(/[^a-zA-Z0-9]/)) strength += 1; // Special char
+
+            // Update UI based on Score
+            if (password.length < 6) {
+                bar.style.width = "20%";
+                bar.className = "progress-bar bg-danger";
+                text.innerText = "Too Short";
+                text.className = "text-danger small";
+            } else if (strength < 2) {
+                bar.style.width = "40%";
+                bar.className = "progress-bar bg-warning";
+                text.innerText = "Weak";
+                text.className = "text-warning small";
+            } else if (strength === 3) {
+                bar.style.width = "75%";
+                bar.className = "progress-bar bg-info";
+                text.innerText = "Good";
+                text.className = "text-info small";
+            } else if (strength === 4) {
+                bar.style.width = "100%";
+                bar.className = "progress-bar bg-success";
+                text.innerText = "Strong";
+                text.className = "text-success small";
+            }
+        }
+
+        // 4. Phone Number Validation
+        function validatePhone() {
+            const phoneInput = document.getElementById('phoneInput');
+            const errorDiv = document.getElementById('phoneError');
+
+            // A. Enforce "Only Digits" (Remove non-numeric chars immediately)
+            phoneInput.value = phoneInput.value.replace(/[^0-9]/g, '');
+
+            // B. Check Length (Must be exactly 10)
+            if (phoneInput.value.length > 0 && phoneInput.value.length !== 10) {
+                phoneInput.classList.add('is-invalid');
+                errorDiv.classList.remove('d-none');
+            } else {
+                // Valid or Empty (Allow empty to be handled by 'required' attribute on submit)
+                phoneInput.classList.remove('is-invalid');
+                errorDiv.classList.add('d-none');
+            }
+        }
+    </script> -->
+
+</body>
+
+</html>

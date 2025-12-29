@@ -1,0 +1,2441 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- ================================
+             Meta
+        ================================ -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>User Dashboard • Myopia Study</title>
+
+    <!-- ================================
+             Icons & Fonts
+        ================================ -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+    <style>
+        /* =========================================================
+   THEME VARIABLES
+========================================================= */
+        :root {
+            --blue: #0A6EF2;
+            --blue-light: #E9F4FF;
+            --border: #DFE7EE;
+
+            --sidebar-width: 240px;
+            --sidebar-collapsed: 70px;
+        }
+
+        /* =========================================================
+   BASE STYLES
+========================================================= */
+        body {
+            background: #F5F7FA;
+            font-family: "Inter", sans-serif;
+        }
+
+        /* =========================================================
+   SIDEBAR
+========================================================= */
+        #sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+
+            background: #fff;
+            border-right: 1px solid var(--border);
+
+            overflow-x: hidden;
+            z-index: 1000;
+            transition: width 0.3s ease;
+        }
+
+        #sidebar.collapsed {
+            width: var(--sidebar-collapsed);
+        }
+
+        /* Sidebar text */
+        #sidebar .sidebar-text {
+            white-space: nowrap;
+            transition: opacity 0.2s ease;
+        }
+
+        #sidebar.collapsed .sidebar-text {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        /* Sidebar items */
+        #sidebar .list-group-item {
+            border: none;
+            padding: 14px 18px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        #sidebar .list-group-item i {
+            width: 24px;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        #sidebar .list-group-item.active {
+            background: var(--blue-light);
+            border-left: 4px solid var(--blue);
+            color: var(--blue);
+            font-weight: 600;
+        }
+
+        /* =========================================================
+   CONTENT LAYOUT
+========================================================= */
+        #content {
+            margin-left: var(--sidebar-width);
+            padding: 26px;
+            transition: margin-left 0.3s ease;
+        }
+
+        #content.expanded {
+            margin-left: var(--sidebar-collapsed);
+        }
+
+        /* =========================================================
+   SECTION HEADERS
+========================================================= */
+        .section-title {
+            background: var(--blue-light);
+            color: var(--blue);
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        /* =========================================================
+   CARDS
+========================================================= */
+        .card {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+        }
+
+        /* =========================================================
+   TABLES
+========================================================= */
+        table thead {
+            background: var(--blue-light);
+        }
+
+        table tbody tr:hover {
+            background: #F7FBFF;
+        }
+
+        /* =========================================================
+   SPA SECTIONS
+========================================================= */
+        .spa-section {
+            display: none;
+            animation: fadeIn 0.25s ease;
+        }
+
+        .spa-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* =========================================================
+   REVIEW OVERLAY (FORM REVIEW)
+========================================================= */
+        .review-overlay {
+            position: fixed;
+            inset: 0;
+
+            background: rgba(0, 0, 0, 0.35);
+            display: none;
+
+            align-items: center;
+            justify-content: center;
+
+            z-index: 2000;
+        }
+
+        .review-overlay.show {
+            display: flex;
+        }
+
+        .review-box {
+            width: min(900px, 92vw);
+            max-height: 80vh;
+            padding: 16px;
+
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+
+            overflow: auto;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        /* =========================================================
+   SUCCESS STATE
+========================================================= */
+        .success-card {
+            text-align: center;
+            padding: 50px 20px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            background: #d1e7dd;
+            color: #198754;
+
+            border-radius: 50%;
+            font-size: 40px;
+            margin-bottom: 20px;
+        }
+
+
+        /* =========================================================
+   FORM VALIDATION
+========================================================= */
+        .error-msg {
+            font-size: 12px;
+            color: #d9534f;
+            margin-top: 3px;
+        }
+
+        input.is-invalid,
+        select.is-invalid,
+        textarea.is-invalid {
+            border-color: #d9534f !important;
+        }
+
+        .row>* {
+            flex-shrink: 0;
+            width: 100%;
+            max-width: 100%;
+            padding-right: calc(var(--bs-gutter-x) * .5);
+            padding-left: calc(var(--bs-gutter-x) * .5);
+            margin-top: var(--bs-gutter-y);
+        }
+
+        
+    </style>
+</head>
+
+
+
+<body>
+
+    <!-- =====================================================
+         SIDEBAR
+    ===================================================== -->
+    <div class="container-fluid">
+        <aside id="sidebar">
+
+            <!-- App Title -->
+            <div class="p-3 fw-bold text-center" style="color:var(--blue); font-size:20px;">
+                <span class="sidebar-text">Myopia Study</span>
+            </div>
+
+            <!-- Navigation -->
+            <div class="list-group list-group-flush">
+
+                <!-- Dashboard -->
+                <a class="list-group-item active" onclick="showSection('dashboard', this)">
+                    <i class="bi bi-grid"></i>
+                    <span class="sidebar-text">Dashboard</span>
+                </a>
+
+                <!-- Forms -->
+                <a class="list-group-item" onclick="showSection('forms', this)">
+                    <i class="bi bi-journal-medical"></i>
+                    <span class="sidebar-text">Myopia Questionnaires<span>
+                </a>
+
+                <!-- Follow-Ups -->
+                <a class="list-group-item" onclick="showSection('followups', this)">
+                    <i class="bi bi-calendar-check"></i>
+                    <span class="sidebar-text">Follow-Ups</span>
+                </a>
+
+                <!-- Logout -->
+                <a class="list-group-item text-danger" onclick="submitLogout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="sidebar-text">Logout</span>
+                </a>
+
+            </div>
+        </aside>
+    </div>
+
+    <!-- =====================================================
+     TOP NAVBAR
+===================================================== -->
+    <nav class="navbar bg-white border-bottom sticky-top px-3" style="z-index:1020;">
+
+        <!-- Sidebar Toggle -->
+        <button class="btn btn-light" onclick="toggleSidebar()">
+            <i class="fa fa-list white"></i>
+        </button>
+
+        <!-- Profile Dropdown -->
+        <div class="ms-auto dropdown">
+
+            <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle text-dark"
+                id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+
+                <span id="welcomeUser" class="me-2 text-muted d-none d-md-inline"></span>
+
+                <img src="https://ui-avatars.com/api/user.name" class="rounded-circle border" width="36" height="36">
+            </a>
+
+            <!-- Dropdown Menu -->
+            <div class="dropdown-menu dropdown-menu-end shadow-lg border-0 p-0" aria-labelledby="profileDropdown"
+                style="width:320px;">
+
+                <!-- Header -->
+                <div class="bg-primary p-3 rounded-top text-white text-center">
+                    <h6 class="mb-0 fw-bold">My Profile</h6>
+                </div>
+
+                <!-- Profile Details -->
+                <div class="p-4">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+
+                        <div class="rounded-circle bg-light text-primary
+                                d-flex justify-content-center align-items-center
+                                fw-bold border" style="width:60px; height:60px; font-size:24px; flex-shrink:0;">
+                        </div>
+
+                        <div style="overflow:hidden;">
+                            <h5 class="fw-bold mb-1 text-truncate">
+                                {user.name}
+                            </h5>
+
+                            <div class="text-muted small text-truncate">
+                                <i class="bi bi-envelope me-1"></i>{user.email}
+                            </div>
+
+                            <div class="text-muted small">
+                                <i class="bi bi-telephone me-1"></i>{user.phone}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button class="btn btn-outline-primary btn-sm" onclick="openEditProfile()">
+                            <i class="bi bi-pencil-square me-1"></i>
+                            Edit Profile
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="border-top p-2 bg-light rounded-bottom text-center">
+                    <a href="#" class="text-danger text-decoration-none small fw-bold" onclick="submitLogout()">
+                        Logout
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </nav>
+
+    <!-- =====================================================
+         MAIN CONTENT
+======================================================= -->
+    <div id="content">
+
+        <!-- =====================================================
+     DASHBOARD OVERVIEW
+===================================================== -->
+        <section id="dashboard" class="spa-section active">
+
+            <!-- Section Header -->
+            <div class="section-title">
+                Dashboard Overview
+            </div>
+
+            <!-- =====================
+     DASHBOARD METRICS
+===================== -->
+            <div class="row g-3">
+
+                <!-- Total Submissions -->
+                <div class="col-md-4 col-lg-3">
+                    <div class="card p-3">
+                        <small class="text-muted">Total Submissions</small>
+                        <h3 class="fw-bold" id="totalSubmissions">--</h3>
+                    </div>
+                </div>
+
+                <!-- Today's Entries -->
+                <div class="col-md-4 col-lg-3">
+                    <div class="card p-3">
+                        <small class="text-muted">Today's Entries</small>
+                        <h3 class="fw-bold text-success" id="todayEntries">--</h3>
+                    </div>
+                </div>
+
+                <!-- Pending -->
+                <div class="col-md-4 col-lg-3">
+                    <div class="card p-3">
+                        <small class="text-muted">Pending</small>
+                        <h3 class="fw-bold text-warning" id="pendingEntries">--</h3>
+                    </div>
+                </div>
+
+                <!-- Total Follow-Ups -->
+                <div class="col-md-4 col-lg-3">
+                    <div class="card p-3">
+                        <small class="text-muted">Total Follow-Ups</small>
+                        <h3 class="fw-bold text-primary" id="totalFollowups">--</h3>
+                    </div>
+                </div>
+
+                <!-- Overdue Follow-Ups -->
+                <div class="col-md-4 col-lg-3">
+                    <div class="card p-3 border border-danger border-opacity-25">
+                        <small class="text-muted">Overdue Follow-Ups</small>
+                        <h3 class="fw-bold text-danger" id="overdueFollowups">--</h3>
+                    </div>
+                </div>
+
+
+                <!-- =====================
+                     PENDING FOLLOW-UPS
+                ===================== -->
+                <div class="card mt-4">
+                    <div class="card-header fw-bold d-flex justify-content-between align-items-center">
+                        <span>Pending Follow-Ups</span>
+                        <a href="#" class="small text-decoration-none" onclick="alert('Go to Follow-Ups section')">
+                            View all
+                        </a>
+                    </div>
+
+                    <ul class="list-group list-group-flush" id="pendingFollowupsList">
+                        <!-- Mock items injected by JS -->
+                    </ul>
+                </div>
+
+                <!-- =====================
+                     RECENT ACTIVITY
+                ===================== -->
+                <div class="card mt-4">
+                    <div class="card-header fw-bold d-flex justify-content-between align-items-center">
+                        <span>Recent Activity</span>
+                        <small class="text-muted">Last 5 submissions</small>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0 align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="recentActivityBody">
+                                <!-- Mock rows injected by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- =====================
+                     RECENT ACTIVITY
+                ===================== -->
+                <div class="card mt-4">
+                    <div class="card-header fw-bold d-flex justify-content-between align-items-center">
+                        <span>Recent Activity</span>
+                        <small class="text-muted">Last 5 submissions</small>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0 align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="recentActivityBody">
+                                <!-- Mock rows injected by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+
+
+                <!-- =====================
+         QUICK ACTIONS
+    ===================== -->
+                <div class="mt-4">
+                    <button class="btn btn-primary"
+                        onclick="showSection('forms', document.querySelector('a[onclick*=forms]'))">
+
+                        <i class="fas fa-plus me-2"></i>
+                        New Survey
+                    </button>
+                </div>
+
+        </section>
+
+        <section id="forms" class="spa-section">
+
+            <div id="formsListState">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="section-title mb-0 w-100">Myopia Questionnaires</div>
+                    <button class="btn btn-primary ms-3 text-nowrap" onclick="switchFormState('entry')">
+                        <i class="fas fa-plus lg-4 me-2"></i>New Survey
+                    </button>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <form onsubmit="event.preventDefault(); filterForms();"
+                            class="d-flex justify-content-between align-items-center">
+
+                            <!-- Search -->
+                            <div class="input-group" style="max-width:320px;">
+                                <span class="input-group-text bg-light border-end-0 text-muted">
+                                    <i class="bi bi-search"></i>
+                                </span>
+                                <input type="text" id="searchInput" class="form-control border-start-0 ps-1"
+                                    placeholder="Search by Student Name, ID...">
+                            </div>
+
+                            <!-- Filter -->
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                                    <i class="bi bi-funnel"></i>&nbsp; Filter
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-end p-3" style="min-width:280px;">
+                                    <div class="mb-2">
+                                        <label for="dateFilter" class="form-label small fw-bold">Filter by
+                                            Date</label>
+                                        <input type="date" id="dateFilter" class="form-control form-control-sm">
+                                    </div>
+                                    <div class="mb-2">
+                                        <label for="statusFilter" class="form-label small fw-bold">Filter by
+                                            Status</label>
+                                        <select id="statusFilter" class="form-select form-select-sm">
+                                            <option value="">All</option>
+                                            <option value="Completed">Completed</option>
+                                            <option value="Pending">Pending</option>
+                                        </select>
+                                    </div>
+                                    <div class="d-grid gap-2 pt-2 border-top">
+                                        <button class="btn btn-sm btn-primary" type="button"
+                                            onclick="applyDateFilter()">
+                                            Apply Filters
+                                        </button>
+                                        <button class="btn btn-sm btn-light" type="button" onclick="clearDateFilter()">
+                                            Clear Filters
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card p-0 overflow-hidden">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle" id="formsTable" data-max-entries="50"
+                            data-current-page="1">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4">Student_Id</th>
+                                    <th>Date Submitted</th>
+                                    <th>Student Name</th>
+                                    <th>Status</th>
+                                    <th class="text-end pe-4">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="ps-4 fw-bold text-primary">#FM-2045</td>
+                                    <td>2024-12-08</td>
+                                    <td>Rahul Kumar</td>
+                                    <td><span class="badge bg-success bg-opacity-10 text-success">Completed</span>
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        <button class="btn btn-sm btn-light border"
+                                            onclick="viewSubmittedForm('FM-2045')">
+                                            <i class="bi bi-eye"></i> View
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="ps-4 fw-bold text-primary">#FM-2044</td>
+                                    <td>2024-12-07</td>
+                                    <td>Priya Singh</td>
+                                    <td><span class="badge bg-success bg-opacity-10 text-success">Completed</span>
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        <button class="btn btn-sm btn-light border"
+                                            onclick="viewSubmittedForm('FM-2044')">
+                                            <i class="bi bi-eye"></i> View
+                                        </button>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="5" class="p-3">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="small text-muted" id="paginationInfo">
+                                                Showing 1–50 of 128
+                                            </div>
+                                            <div class="btn-group">
+                                                <button class="btn btn-outline-secondary btn-sm" id="prevBtn"
+                                                    onclick="prevPage()">
+                                                    <i class="fa fa-chevron-left"></i>&nbsp; Prev
+                                                </button>
+                                                <button class="btn btn-outline-secondary btn-sm" id="nextBtn"
+                                                    onclick="nextPage()">
+                                                    Next &nbsp;<i class="fa fa-chevron-right"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="formsEntryState" style="display: none;">
+                <div class="d-flex align-items-center mb-3">
+                    <button class="btn btn-outline-secondary me-3" onclick="switchFormState('list')">
+                        <i class="fa fa-arrow-left"></i> Back to List
+                    </button>
+                    <h5 class="fw-bold text-primary m-0" id="formEntryTitle">New Clinical Entry</h5>
+                </div>
+
+                <div class="card p-3 border-primary border-opacity-25 shadow-sm">
+                    <div class="container py-2">
+                        <div class="text-center mb-3">
+                            <h5 class="fw-bold" style="color: var(--blue);">Questionnaire for Myopia Progression
+                                Study
+                            </h5>
+                            <p class="text-muted small">(School-Going Children, Age 6–18 Years)</p>
+                        </div>
+
+                        <form id="myopiaForm" class="needs-validation" novalidate>
+                            <div class="card section-card mb-3">
+                                <div class="card-header fw-bold bg-primary text-white">Section A: Demographic
+                                    Information</div>
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-6"><label class="form-label">1. Name of Student</label>
+                                            <input type="text" name="student_name" class="form-control" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3"><label class="form-label">2. School</label>
+                                            <input type="text" class="form-control" id="school_name">
+                                        </div>
+
+                                        <div class="col-md-3"><label class="form-label">3. Age (in
+                                                years)</label><input type="number" name="age" class="form-control"
+                                                min="6" max="18" required>
+                                        </div>
+                                        <div class="col-md-3"><label class="form-label">4. Gender</label><select
+                                                name="gender" class="form-select" required>
+                                                <option value="">Select</option>
+                                                <option>Male</option>
+                                                <option>Female</option>
+                                                <option>Other</option>
+                                            </select></div>
+                                        <div class="col-md-3"><label class="form-label">5. Height (cm)</label><input
+                                                type="number" name="height" class="form-control"></div>
+                                        <div class="col-md-3"><label class="form-label">6. Weight (kg)</label><input
+                                                type="number" name="weight" class="form-control"></div>
+                                        <div class="col-md-6"><label class="form-label">7. Parental Myopia</label>
+                                            <div>
+                                                <div class="form-check form-check-inline"><input
+                                                        class="form-check-input" type="radio" name="parental_myopia"
+                                                        value="None"><label class="form-check-label">None</label>
+                                                </div>
+                                                <div class="form-check form-check-inline"><input
+                                                        class="form-check-input" type="radio" name="parental_myopia"
+                                                        value="father"><label class="form-check-label">Father</label>
+                                                </div>
+                                                <div class="form-check form-check-inline"><input
+                                                        class="form-check-input" type="radio" name="parental_myopia"
+                                                        value="mother"><label class="form-check-label">Mother</label>
+                                                </div>
+                                                <div class="form-check form-check-inline"><input
+                                                        class="form-check-input" type="radio" name="parental_myopia"
+                                                        value="both"><label class="form-check-label">Both</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3"><label class="form-label">8. Number of
+                                                Siblings</label><input type="number" name="num_siblings"
+                                                class="form-control"></div>
+                                        <div class="col-md-3"><label class="form-label">9. Birth
+                                                Order</label><select class="form-select" name="birth_order">
+                                                <option value="">Select</option>
+                                                <option value="First">First-born</option>
+                                                <option value="Middle">Second-born</option>
+                                                <option value="Last">Third-born</option>
+                                                <option value="Only">Fourth-born or later</option>
+                                            </select></div>
+                                        <div class="col-md-3"><label class="form-label">10. Siblings with
+                                                Myopia</label><input type="number" name="siblings_myopia"
+                                                class="form-control"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Section B: Behavioral and Lifestyle Factors -->
+
+                            <div class="card section-card mb-3">
+                                <div class="card-header fw-bold bg-primary text-white">Section B: Behavioral and
+                                    Lifestyle
+                                    Factors</div>
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-6"><label class="form-label">11. Time of daily outdoor
+                                                activity</label><input type="time" class="form-control"
+                                                name="outdoor_time"></div>
+                                        <div class="col-md-6"><label class="form-label">12. Duration of outdoor
+                                                activities</label>
+                                            <div>
+                                                <div class="form-check form-check-inline"><input type="radio"
+                                                        name="outdoor_duration" value="&lt;1 hr"
+                                                        class="form-check-input"><label class="form-check-label">&lt;1
+                                                        hr</label></div>
+                                                <div class="form-check form-check-inline"><input type="radio"
+                                                        name="outdoor_duration" value="1-2 hrs"
+                                                        class="form-check-input"><label class="form-check-label">1–2
+                                                        hrs</label>
+                                                </div>
+                                                <div class="form-check form-check-inline"><input type="radio"
+                                                        name="outdoor_duration" value="2-4 hrs"
+                                                        class="form-check-input"><label class="form-check-label">2–4
+                                                        hrs</label>
+                                                </div>
+                                                <div class="form-check form-check-inline"><input type="radio"
+                                                        name="outdoor_duration" value="&gt;4 hrs"
+                                                        class="form-check-input"><label class="form-check-label">&gt;4
+                                                        hrs</label></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6"><label class="form-label">13. Average daily sun
+                                                exposure
+                                                duration:</label>
+                                            <div>
+                                                <div class="form-check form-check-inline"><input type="radio"
+                                                        name="sun_exposure" value="<15 min"
+                                                        class="form-check-input"><label class="form-check-label">&lt15
+                                                        min
+                                                    </label></div>
+                                                <div class="form-check form-check-inline"><input type="radio"
+                                                        name="sun_exposure" value="15-30 min"
+                                                        class="form-check-input"><label class="form-check-label">15-30
+                                                        min
+                                                    </label>
+                                                </div>
+                                                <div class="form-check form-check-inline"><input type="radio"
+                                                        name="sun_exposure" value="30-60 min"
+                                                        class="form-check-input"><label class="form-check-label">30-60
+                                                        min
+                                                    </label>
+                                                </div>
+                                                <div class="form-check form-check-inline"><input type="radio"
+                                                        name="sun_exposure" value=">1 hrs"
+                                                        class="form-check-input"><label class="form-check-label">&gt;1
+                                                        hr
+                                                    </label></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6"><label class="form-label">14. Near-work-time</label>
+                                        </div>
+                                        <div class="form-check form-check-inline"><input type="radio"
+                                                name="near_work_hours" value="<2 hrs" class="form-check-input"><label
+                                                class="form-check-label">&lt2 hr
+                                            </label></div>
+                                        <div class="form-check form-check-inline"><input type="radio"
+                                                name="near_work_hours" value="2-4 hrs" class="form-check-input"><label
+                                                class="form-check-label">2-4 hrs
+                                            </label></div>
+                                        <div class="form-check form-check-inline"><input type="radio"
+                                                name="near_work_hours" value="4-6 hrs" class="form-check-input"><label
+                                                class="form-check-label">4-6 hrs
+                                            </label></div>
+                                        <div class="form-check form-check-inline"><input type="radio"
+                                                name="near_work_hours" value=">6 hrs" class="form-check-input"><label
+                                                class="form-check-label">&lt6 hrs
+                                            </label></div>
+                                        <div class="col-md-6"><label class="form-label">15. Average daily screen
+                                                time(TV/Tablet/Mobile/Computer):</label></div>
+                                        <div class="form-check form-check-inline"><input type="radio" name="screen_time"
+                                                value="<1 hr" class="form-check-input"><label
+                                                class="form-check-label">&lt1 hr
+                                            </label></div>
+                                        <div class="form-check form-check-inline"><input type="radio" name="screen_time"
+                                                value="1-3 hrs" class="form-check-input"><label
+                                                class="form-check-label">1-3 hrs
+                                            </label></div>
+                                        <div class="form-check form-check-inline"><input type="radio" name="screen_time"
+                                                value="3-5 hrs" class="form-check-input"><label
+                                                class="form-check-label">3-5 hrs
+                                            </label></div>
+                                        <div class="form-check form-check-inline"><input type="radio" name="screen_time"
+                                                value=">5 hrs" class="form-check-input"><label
+                                                class="form-check-label">&lt5 hrs
+                                            </label></div>
+                                        <div class="col-md-6"><label class="form-label">16. Device primarily used
+                                                for
+                                                online activity:</label>
+                                            <div>
+                                                <div class="form-check form-check-inline"><input type="radio"
+                                                        name="primary_device" value="TV" class="form-check-input"><label
+                                                        class="form-check-label">TV</label>
+                                                </div>
+                                                <div class="form-check form-check-inline"><input type="radio"
+                                                        name="primary_device" value="Tablet"
+                                                        class="form-check-input"><label
+                                                        class="form-check-label">Tablet</label>
+                                                </div>
+                                                <div class="form-check form-check-inline"><input type="radio"
+                                                        name="primary_device" value="Mobile"
+                                                        class="form-check-input"><label
+                                                        class="form-check-label">Mobile</label>
+                                                </div>
+                                                <div class="form-check form-check-inline"><input type="radio"
+                                                        name="primary_device" value="Laptop"
+                                                        class="form-check-input"><label
+                                                        class="form-check-label">Laptop/Desktop</label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6"><label class="form-label">17. Reading distance</label>
+                                            <div>
+                                                <div class="form-check form-check-inline"><input type="radio"
+                                                        name="reading_distance" value="<20 cm"
+                                                        class="form-check-input"><label class="form-check-label">&lt;20
+                                                        cm</label></div>
+                                                <div class="form-check form-check-inline"><input type="radio"
+                                                        name="reading_distance" value="20-30 cm"
+                                                        class="form-check-input"><label class="form-check-label">20–30
+                                                        cm</label></div>
+                                                <div class="form-check form-check-inline"><input type="radio"
+                                                        name="reading_distance" value=">30 cm"
+                                                        class="form-check-input"><label class="form-check-label">&gt;30
+                                                        cm</label></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6"><label class="form-label">18. Viewing posture
+                                                ratio</label>
+                                            <div>
+                                                <div class="form-check form-check-inline"><input type="radio"
+                                                        name="viewing_posture_ratio" value="Low"
+                                                        class="form-check-input"><label
+                                                        class="form-check-label">Low</label>
+                                                </div>
+                                                <div class="form-check form-check-inline"><input type="radio"
+                                                        name="viewing_posture_ratio" value="High"
+                                                        class="form-check-input"><label
+                                                        class="form-check-label">High</label>
+                                                </div>
+                                                <div class="form-check form-check-inline"><input type="radio"
+                                                        name="viewing_posture_ratio" value="Optimum"
+                                                        class="form-check-input"><label
+                                                        class="form-check-label">Optimum</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6"><label class="form-label">19. Dietary habits</label>
+                                            <div>
+                                                <div class="form-check form-check-inline">
+                                                    <input type="radio" name="dietary_habit" value="Balanced"
+                                                        class="form-check-input">
+                                                    <label class="form-check-label">Balanced</label>
+                                                </div>
+
+                                                <div class="form-check form-check-inline">
+                                                    <input type="radio" name="dietary_habit" value="Junk"
+                                                        class="form-check-input">
+                                                    <label class="form-check-label">Junk-food dominant</label>
+                                                </div>
+
+                                                <div class="form-check form-check-inline">
+                                                    <input type="radio" name="dietary_habit" value="Vegetarian"
+                                                        class="form-check-input">
+                                                    <label class="form-check-label">Vegetarian</label>
+                                                </div>
+
+                                                <div class="form-check form-check-inline">
+                                                    <input type="radio" name="dietary_habit" value="NonVegetarian"
+                                                        class="form-check-input">
+                                                    <label class="form-check-label">Non-vegetarian</label>
+                                                </div>
+
+                                                <div class="form-check form-check-inline">
+                                                    <input type="radio" name="dietary_habit" value="Other"
+                                                        class="form-check-input">
+                                                    <label class="form-check-label">Other</label>
+                                                </div>
+
+                                                <input type="text" name="dietary_other" class="form-control mt-2">
+
+                                            </div>
+                                            <div class="col-md-6"><label class="form-label">20. Average sleep
+                                                    duration per night:</label></div>
+                                            <div class="form-check form-check-inline"><input type="radio"
+                                                    name="sleep_duration" value="<6 hrs" class="form-check-input"><label
+                                                    class="form-check-label">&lt6
+                                                    hrs
+                                                </label></div>
+                                            <div class="form-check form-check-inline"><input type="radio"
+                                                    name="sleep_duration" value="6-7 hrs"
+                                                    class="form-check-input"><label class="form-check-label">6-7 hrs
+                                                </label></div>
+                                            <div class="form-check form-check-inline"><input type="radio"
+                                                    name="sleep_duration" value="7-8 hrs"
+                                                    class="form-check-input"><label class="form-check-label">7-8 hrs
+                                                </label></div>
+                                            <div class="form-check form-check-inline"><input type="radio"
+                                                    name="sleep_duration" value=">8 hrs" class="form-check-input"><label
+                                                    class="form-check-label">&gt8
+                                                    hrs
+                                                </label></div>
+
+                                            <div class="col-md-6"><label class="form-label">21. Usual
+                                                    Bedtime:</label></div>
+                                            <div class="form-check form-check-inline"><input type="radio"
+                                                    name="usual_bedtime" value="Before9" class="form-check-input"><label
+                                                    class="form-check-label">Before
+                                                    9 PM
+                                                </label></div>
+                                            <div class="form-check form-check-inline"><input type="radio"
+                                                    name="usual_bedtime" value="9-10" class="form-check-input"><label
+                                                    class="form-check-label">9-10 PM
+                                                </label></div>
+                                            <div class="form-check form-check-inline"><input type="radio"
+                                                    name="usual_bedtime" value="10-11" class="form-check-input"><label
+                                                    class="form-check-label">10-11
+                                                    PM
+                                                </label></div>
+                                            <div class="form-check form-check-inline"><input type="radio"
+                                                    name="usual_bedtime" value="After11" class="form-check-input"><label
+                                                    class="form-check-label">After
+                                                    11 PM
+                                                </label></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+                                <!-- Environmental Factors -->
+                                <div class="card section-card mb-3">
+                                    <div class="card-header fw-bold bg-primary text-white">Section C: Environmental
+                                        Factors
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-4"><label class="form-label">22. School Type</label>
+                                                <div class="form-check form-check-inline"><input type="radio"
+                                                        name="school_type" value="Urban" class="form-check-input"><label
+                                                        class="form-check-label">Urban
+                                                    </label>
+                                                </div>
+                                                <div class="form-check form-check-inline"><input type="radio"
+                                                        name="school_type" value="Rural" class="form-check-input"><label
+                                                        class="form-check-label">Rural
+
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <!-- <div class="col-md-4"><label class="form-label">22. Access to vision
+                                                care</label><select class="form-select">
+                                                <option>Yes</option>
+                                                <option>No</option>
+                                            </select></div> -->
+                                            <div class="col-md-4"><label class="form-label">23. Classroom
+                                                    strength</label>
+                                                <div class="form-check form-check-inline"><input type="radio"
+                                                        name="classroom_strength" value="Small"
+                                                        class="form-check-input"><label class="form-check-label">&lt;30
+
+                                                    </label>
+                                                </div>
+                                                <div class="form-check form-check-inline"><input type="radio"
+                                                        name="classroom_strength" value="Moderate"
+                                                        class="form-check-input"><label class="form-check-label">30-50
+
+                                                    </label>
+                                                </div>
+                                                <div class="form-check form-check-inline"><input type="radio"
+                                                        name="classroom_strength" value="High"
+                                                        class="form-check-input"><label class="form-check-label">&gt;30
+
+                                                    </label>
+                                                </div>
+
+
+                                                <div class="col-md-4"><label class="form-label">24. Seating
+                                                        position</label>
+                                                    <div class="form-check form-check-inline"><input type="radio"
+                                                            name="seating_position" value="Front"
+                                                            class="form-check-input"><label
+                                                            class="form-check-label">Front
+
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline"><input type="radio"
+                                                            name="seating_position" value="Middle"
+                                                            class="form-check-input"><label
+                                                            class="form-check-label">Middle
+
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline"><input type="radio"
+                                                            name="seating_position" value="Back"
+                                                            class="form-check-input"><label
+                                                            class="form-check-label">Back
+
+                                                        </label>
+                                                    </div>
+                                                    <div class="col-md-4"><label class="form-label">25. Teaching
+                                                            methodology</label>
+                                                        <div class="form-check form-check-inline"><input type="radio"
+                                                                name="teaching_methodology" value="Digital"
+                                                                class="form-check-input"><label
+                                                                class="form-check-label">Digital
+                                                                (projectors/screens)
+
+                                                            </label>
+                                                        </div>
+                                                        <div class="form-check form-check-inline"><input type="radio"
+                                                                name="teaching_methodology" value="Traditional"
+                                                                class="form-check-input"><label
+                                                                class="form-check-label">Traditional
+                                                                (blackboard/books)
+
+                                                            </label>
+                                                        </div>
+
+                                                        <div class="col-md-4"><label class="form-label">26. Lighting
+                                                                at
+                                                                study</label>
+                                                            <div class="form-check form-check-inline"><input
+                                                                    type="radio" name="lighting" value="Dim"
+                                                                    class="form-check-input"><label
+                                                                    class="form-check-label">Dim
+
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check form-check-inline"><input
+                                                                    type="radio" name="lighting" value="Adequate"
+                                                                    class="form-check-input"><label
+                                                                    class="form-check-label">Adequate
+
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check form-check-inline"><input
+                                                                    type="radio" name="lighting" value="Bright"
+                                                                    class="form-check-input"><label
+                                                                    class="form-check-label">Bright
+
+                                                                </label>
+                                                            </div>
+                                                            <div class="col-md-6"><label class="form-label">27.
+                                                                    Source
+                                                                    of
+                                                                    sunlight</label>
+                                                                <div class="form-check form-check-inline"><input
+                                                                        type="radio" name="sunlight_source"
+                                                                        value="Natural" class="form-check-input"><label
+                                                                        class="form-check-label">Natural
+
+                                                                    </label>
+                                                                </div>
+                                                                <div class="form-check form-check-inline"><input
+                                                                        type="radio" name="sunlight_source"
+                                                                        value="Artificial"
+                                                                        class="form-check-input"><label
+                                                                        class="form-check-label">Artififial
+
+                                                                    </label>
+                                                                </div>
+                                                                <div class="form-check form-check-inline"><input
+                                                                        type="radio" name="sunlight_source" value="Both"
+                                                                        class="form-check-input"><label
+                                                                        class="form-check-label">Both
+
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="card section-card mb-3">
+                                                        <div class="card-header fw-bold bg-primary text-white">
+                                                            Section
+                                                            D: Myopia History</div>
+                                                        <div class="card-body">
+                                                            <label>28. Diagnosed with myopia earlier?</label><br>
+                                                            <div class="form-check form-check-inline"><input
+                                                                    type="radio" name="diagnosed_earlier" value="true"
+                                                                    class="form-check-input"><label>Yes</label>
+                                                            </div>
+                                                            <div class="form-check form-check-inline"><input
+                                                                    type="radio" name="diagnosed_earlier" value="false"
+                                                                    class="form-check-input"><label>No</label></div>
+                                                            <br><br>
+                                                            <label>29. Age diagnosed?</label> <input type="number"
+                                                                name="age_at_diagnosis" placeholder="Age (years)"
+                                                                class="form-control w-25"><br>
+                                                            <label>30. Change in spectacle power in last 3
+                                                                years?</label>
+                                                            <div class="form-check form-check-inline"><input
+                                                                    type="radio" name="power_changed_last_3yrs"
+                                                                    value="true"
+                                                                    class="form-check-input"><label>Yes</label>
+                                                            </div>
+                                                            <div class="form-check form-check-inline"><input
+                                                                    type="radio" name="power_changed_last_3yrs"
+                                                                    value="false"
+                                                                    class="form-check-input"><label>No</label></div>
+                                                            <br><br>
+                                                            <label>31. Compliance with spectacle wear:</label>
+                                                            <div class="form-check form-check-inline"><input
+                                                                    type="radio" name="compliance" value="Always"
+                                                                    class="form-check-input"><label>Always</label>
+                                                            </div>
+                                                            <div class="form-check form-check-inline"><input
+                                                                    type="radio" name="compliance" value="Sometimes"
+                                                                    class="form-check-input"><label>Sometimes</label>
+                                                            </div>
+                                                            <div class="form-check form-check-inline"><input
+                                                                    type="radio" name="compliance" value="Rarely"
+                                                                    class="form-check-input"><label>Rarely</label>
+                                                            </div>
+                                                            <br><br>
+                                                            <label>32. Spectacle power:</label>
+                                                            <div class="row g-2">
+                                                                <div class="col-md-3"><input ttype="text"
+                                                                        name="previous_re" class="form-control"
+                                                                        placeholder="Prev RE">
+                                                                </div>
+                                                                <div class="col-md-3"><input type="text"
+                                                                        name="previous_le" class="form-control"
+                                                                        placeholder="Prev LE">
+                                                                </div>
+                                                                <div class="col-md-3"><input type="text"
+                                                                        name="current_re" class="form-control"
+                                                                        placeholder="Curr RE">
+                                                                </div>
+                                                                <div class="col-md-3"><input type="text"
+                                                                        name="current_le" class="form-control"
+                                                                        placeholder="Curr LE">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="card section-card mb-3">
+                                                        <div class="card-header fw-bold bg-primary text-white">
+                                                            Section
+                                                            E: Awareness</div>
+                                                        <div class="card-body">
+                                                            <label>33. Access to vision care in your
+                                                                area:</label><br>
+                                                            <div class="form-check form-check-inline"><input
+                                                                    type="radio" name="access_to_vision_care"
+                                                                    value="true"
+                                                                    class="form-check-input"><label>Yes</label>
+                                                            </div>
+                                                            <div class="form-check form-check-inline"><input
+                                                                    type="radio" name="access_to_vision_care"
+                                                                    value="false"
+                                                                    class="form-check-input"><label>No</label></div>
+                                                            <br><br>
+                                                            <label>34. Aware of eye strain symptoms?</label>
+                                                            <div class="form-check form-check-inline"><input
+                                                                    type="radio" name="aware_eye_strain" value="true"
+                                                                    class="form-check-input"><label>Yes</label>
+                                                            </div>
+                                                            <div class="form-check form-check-inline"><input
+                                                                    type="radio" name="aware_eye_strain" value="false"
+                                                                    class="form-check-input"><label>No</label></div>
+                                                            <br><br>
+                                                            <label>35. Follows preventive measures?</label>
+                                                            <div class="form-check form-check-inline"><input
+                                                                    type="radio" name="follows_preventive_measures"
+                                                                    value="Always"
+                                                                    class="form-check-input"><label>Always</label>
+                                                            </div>
+                                                            <div class="form-check form-check-inline"><input
+                                                                    type="radio" name="follows_preventive_measures"
+                                                                    value="Sometimes"
+                                                                    class="form-check-input"><label>Sometimes</label>
+                                                            </div><br>
+                                                            <div class="form-check form-check-inline"><input
+                                                                    type="radio" name="follows_preventive_measures"
+                                                                    value="Never"
+                                                                    class="form-check-input"><label>Never</label>
+                                                            </div>
+                                                            <br><br>
+                                                            <label>36. Source of awareness:</label>
+                                                            <div class="form-check form-check-inline"><input
+                                                                    type="checkbox" name="source_of_awareness"
+                                                                    value="School"><label>School</label></div>
+                                                            <div class="form-check form-check-inline"><input
+                                                                    type="checkbox" name="source_of_awareness"
+                                                                    value="Family"><label>Family</label></div>
+                                                            <div class="form-check form-check-inline"><input
+                                                                    type="checkbox" name="source_of_awareness"
+                                                                    value="Doctor"><label>Doctor</label></div>
+                                                            <div class="form-check form-check-inline"><input
+                                                                    type="checkbox" name="source_of_awareness"
+                                                                    value="Media">
+                                                                <label>Media</label>
+                                                            </div>
+
+                                                            <div class="form-check form-check-inline"><input
+                                                                    type="checkbox" name="source_of_awareness"
+                                                                    value="None"><label>None</label></div>
+                                                            <div class="form-check form-check-inline"><input
+                                                                    type="checkbox" name="source_of_awareness"
+                                                                    value="Other">Other<input type="text"
+                                                                    name="source_other" placeholder="If other, specify">
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="card section-card mb-3">
+                                                        <div class="card-header fw-bold bg-primary text-white">
+                                                            Section F: Ocular Exam</div>
+                                                        <div class="card-body">
+                                                            <div class="row g-3">
+                                                                <div class="col-md-6"><label>37. Uncorrected
+                                                                        Visual Acuity</label><br>Right eye<input
+                                                                        type="text" name="ucva_re" class="form-control"
+                                                                        placeholder="RE">Left
+                                                                    eye<input type="text" name="ucva_le"
+                                                                        class="form-control" placeholder="LE">
+                                                                </div>
+                                                                <div class="col-md-6"><label>38. Best Corrected
+                                                                        Visual
+                                                                        Acuity (BCVA):</label><br>Right eye<input
+                                                                        type="text" name="bcva_re" class="form-control"
+                                                                        placeholder="RE">Left
+                                                                    eye<input type="text" name="bcva_le"
+                                                                        class="form-control" placeholder="LE">
+                                                                </div>
+                                                                <div class="col-md-6"><label>39. Cycloplegic
+                                                                        Auto-refraction (Spherical
+                                                                        Equivalent):</label><br>Right eye<input
+                                                                        type="text" name="cyclo_se_re"
+                                                                        class="form-control" placeholder="RE">Left
+                                                                    eye<input type="text" name="cyclo_se_le"
+                                                                        class="form-control" placeholder="LE">
+                                                                </div>
+                                                                <div class="col-md-6"><label>40. Spherical
+                                                                        Power:</label><br>Right eye<input type="text"
+                                                                        name="spherical_re" class="form-control"
+                                                                        placeholder="RE">Left
+                                                                    eye<input type="text" name="spherical_le"
+                                                                        class="form-control" placeholder="LE">
+                                                                </div>
+                                                                <div class="col-md-6"><label>41. Axial Length
+                                                                        (mm):</label><br>Right eye<input type="text"
+                                                                        name="axial_length_re" class="form-control"
+                                                                        placeholder="RE">Left eye<input type="text"
+                                                                        name="axial_length_le" class="form-control"
+                                                                        placeholder="LE">
+                                                                </div>
+                                                                <div class="col-md-6"><label>42. Corneal Curvature
+                                                                        (K
+                                                                        readings):</label><br>Right eye<input
+                                                                        type="text" name="keratometry_re"
+                                                                        class="form-control" placeholder="RE">Left
+                                                                    eye<input type="text" name="keratometry_le"
+                                                                        class="form-control" placeholder="LE">
+                                                                </div>
+                                                                <div class="col-md-6"><label>43. Central Corneal
+                                                                        Thickness (µm):</label><br>Right eye<input
+                                                                        type="text" name="cct_re" class="form-control"
+                                                                        placeholder="RE">Left
+                                                                    eye<input type="text" name="cct_le"
+                                                                        class="form-control" placeholder="LE">
+                                                                </div>
+                                                                <div class="col-md-6"><label>44. . Anterior segment
+                                                                        findings (Torch light):</label><br>Right
+                                                                    eye<textarea name="anterior_segment_re"
+                                                                        class="form-control" rows="1"></textarea>
+                                                                    Left eye<textarea name="anterior_segment_le"
+                                                                        class="form-control" rows="1"></textarea>
+                                                                </div>
+                                                                <div class="col-md-6"><label>45.
+                                                                        Amblyopia/Strabismus</label><input type="radio"
+                                                                        name="amblyopia_or_strabismus" value="true"
+                                                                        class="form-check-input"> Yes
+                                                                    <input type="radio" name="amblyopia_or_strabismus"
+                                                                        value="false" class="form-check-input"> No
+                                                                </div>
+                                                                <div class="col-md-12"><label>46. Fundus
+                                                                        Findings</label><br>Right eye<textarea
+                                                                        class="form-control" rows="1"></textarea>
+                                                                    Left eye<textarea class="form-control"
+                                                                        rows="1"></textarea></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="text-center mb-3" id="formSubmitBtnContainer">
+                                                        <button type="submit" class="btn btn-success px-4">Submit
+                                                            Entry</button>
+                                                    </div>
+                        </form>
+
+                        <div id="popupInline" class="review-overlay" aria-hidden="true">
+                            <div class="review-box">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="mb-0">Review Your Responses</h6>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                                        onclick="closeReview()">Close</button>
+                                </div>
+                                <div id="reviewContent" class="small"></div>
+                                <div class="mt-3 d-flex gap-2 justify-content-end">
+                                    <button class="btn btn-outline-primary btn-sm" onclick="editForm()"
+                                        type="button">Edit</button>
+                                    <button class="btn btn-success btn-sm" onclick="finalSubmit()"
+                                        type="button">Submit</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div id="formsSuccessState" style="display: none;">
+                <div class="d-flex flex-column align-items-center justify-content-center text-center py-5">
+                    <div class="success-icon mb-4">
+                        <i class="bi bi-check-lg"></i>
+                    </div>
+                    <h2 class="fw-bold mb-2">Form Submitted Successfully!</h2>
+                    <p class="text-muted">The clinical data has been securely recorded.</p>
+
+                    <div class="card p-4 bg-light border-0 my-4" style="min-width: 300px;">
+                        <small class="text-uppercase text-muted fw-bold">Generated Form ID</small>
+                        <div class="display-6 fw-bold text-dark mt-1" id="successFormId">#FM-0000</div>
+                    </div>
+
+                    <div class="d-flex gap-3">
+                        <button class="btn btn-outline-primary px-4" onclick="switchFormState('list')">
+                            Go to My Forms
+                        </button>
+                        <button class="btn btn-primary px-4" onclick="switchFormState('entry')">
+                            Submit Another
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <section id="followups" class="spa-section">
+            <div class="section-title">Follow-Up Management</div>
+
+            <div class="card">
+                <button class="btn btn-primary ms-2" onclick="openNewFollowup()">
+                    <i class="bi bi-plus-lg me-1"></i>
+                    New Follow-Up
+                </button>
+
+
+                <div class="card-header bg-white p-3">
+                    <form onsubmit="event.preventDefault(); searchStudent();"
+                        class="d-flex justify-content-between align-items-center">
+                        <div class="input-group" style="max-width:320px;">
+                            <span class="input-group-text bg-light border-end-0 text-muted">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text" id="followupSearchInput" class="form-control border-start-0 ps-1"
+                                placeholder="Search by Student Name, ID...">
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                                <i class="bi bi-funnel"></i>&nbsp; Filter Options
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end p-3">
+                                <div class="mb-2">
+                                    <label for="followupDateFilter" class="form-label small fw-bold">Filter by Next
+                                        Visit</label>
+                                    <input type="date" id="followupDateFilter" class="form-control form-control-sm">
+                                </div>
+                                <div class="mb-2">
+                                    <label for="followupStatusFilter" class="form-label small fw-bold">Filter by
+                                        Status</label>
+                                    <select id="followupStatusFilter" class="form-select form-select-sm">
+                                        <option value="">All</option>
+                                        <option value="Due">Due</option>
+                                        <option value="Overdue">Overdue</option>
+                                        <option value="Completed">Completed</option>
+                                    </select>
+                                </div>
+                                <div class="d-grid gap-2 pt-2 border-top">
+                                    <button class="btn btn-sm btn-primary" type="button"
+                                        onclick="applyFollowupFilters()">
+                                        Apply Filters
+                                    </button>
+                                    <button class="btn btn-sm btn-light" type="button" onclick="clearFollowupFilters()">
+                                        Clear Filters
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card-body p-0">
+
+                    <div id="followupEntryCard" class="bg-light border-bottom p-4" style="display: none;">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="fw-bold text-success m-0">
+                                <i class="bi bi-file-medical me-2"></i>New Entry for: <span id="entryName"
+                                    class="text-dark"></span> <small class="text-muted ms-2">(<span
+                                        id="entryId"></span>)</small>
+                            </h6>
+                            <button class="btn btn-sm btn-close" onclick="hideFollowupForm()"></button>
+                        </div>
+
+                        <form id="newFollowupForm" onsubmit="event.preventDefault(); saveFollowup();">
+                            <input type="hidden" name="student" id="followupStudentId">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-bold">Last Visit Date</label>
+                                    <input type="date" name="last_visit_date" class="form-control form-control-sm"
+                                        required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-bold">Next Visit Date</label>
+                                    <input type="date" name="next_visit_date" class="form-control form-control-sm"
+                                        required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-bold">Status</label>
+                                    <select name="status" class="form-select form-select-sm">
+                                        <option>Due</option>
+                                        <option>Overdue</option>
+                                        <option>Completed</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label small fw-bold">Notes</label>
+                                    <textarea name="notes" class="form-control form-control-sm" rows="2"
+                                        placeholder="Quick clinical notes..."></textarea>
+                                </div>
+                                <div class="col-12 d-flex justify-content-end">
+                                    <button type="submit" class="btn btn-sm btn-success">
+                                        Save Entry
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table align-middle table-hover" id="followupsTable">
+                            <thead class="table-light text-muted small text-uppercase">
+                                <tr>
+                                    <th class="ps-4">Student</th>
+                                    <th>Last Visit</th>
+                                    <th>Next Visit</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="ps-4 fw-medium">Amit Patel</td>
+                                    <td>2024-11-01</td>
+                                    <td>2024-12-01</td>
+                                    <td>
+                                        <span class="badge bg-warning text-dark">Due</span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary"
+                                            onclick="populateAndShow('STU-1088', 'Amit Patel')">
+                                            Open
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="ps-4 fw-medium">Sara Khan</td>
+                                    <td>2024-10-15</td>
+                                    <td>2024-11-15</td>
+                                    <td>
+                                        <span class="badge bg-danger">Overdue</span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary"
+                                            onclick="populateAndShow('STU-1092', 'Sara Khan')">
+                                            Open
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="5" class="p-3">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="small text-muted" id="followupPaginationInfo">
+                                                Showing 1–2 of 2
+                                            </div>
+                                            <div class="btn-group">
+                                                <button class="btn btn-outline-secondary btn-sm" id="followupPrevBtn"
+                                                    onclick="prevFollowupPage()">
+                                                    <i class="fa fa-chevron-left"></i>&nbsp; Prev
+                                                </button>
+                                                <button class="btn btn-outline-secondary btn-sm" id="followupNextBtn"
+                                                    onclick="nextFollowupPage()">
+                                                    Next &nbsp;<i class="fa fa-chevron-right"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <form id="logoutForm" method="POST" action="login.html"></form>
+
+
+    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Edit Profile</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="profileEditForm" onsubmit="event.preventDefault(); saveProfileChanges();">
+                        <div class="mb-3">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-control" value="Dr. John Doe" name="full_name">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Phone</label>
+                            <input type="tel" class="form-control" value="+91 98765 43210" name="phone">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control bg-light" value="john.doe@clinic.com" disabled>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- =========================================
+     FOLLOW-UP FORM MODAL (C + D + F)
+========================================= -->
+<div class="modal fade" id="followupModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+
+            <!-- Header -->
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">
+                    New Follow-Up Entry
+                </h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body">
+                <form id="followupForm">
+
+                    <!-- =====================
+                         BASIC FOLLOW-UP INFO
+                    ====================== -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">
+                                Student ID
+                            </label>
+                            <input type="text" class="form-control" id="fuStudentId" required>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">
+                                Last Visit Date
+                            </label>
+                            <input type="date" class="form-control" id="fuLastVisit" required>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">
+                                Next Visit Date
+                            </label>
+                            <input type="date" class="form-control" id="fuNextVisit" required>
+                        </div>
+                    </div>
+
+                    <!-- =================================================
+                         SECTION C : ENVIRONMENTAL FACTORS
+                    ================================================= -->
+                    <div class="card mb-3 section-card">
+                        <div class="card-header fw-bold">
+                            Section C: Environmental Factors
+                        </div>
+
+                        <div class="card-body row g-3">
+
+                            <div class="col-md-4">
+                                <label class="form-label">School Type</label>
+                                <select class="form-select" name="school_type">
+                                    <option value="">Select</option>
+                                    <option>Government</option>
+                                    <option>Private</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Classroom Strength</label>
+                                <select class="form-select" name="classroom_strength">
+                                    <option value="">Select</option>
+                                    <option>&lt;30</option>
+                                    <option>30–50</option>
+                                    <option>&gt;50</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Seating Position</label>
+                                <select class="form-select" name="seating_position">
+                                    <option value="">Select</option>
+                                    <option>Front</option>
+                                    <option>Middle</option>
+                                    <option>Back</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Classroom Lighting</label>
+                                <select class="form-select" name="lighting">
+                                    <option value="">Select</option>
+                                    <option>Natural</option>
+                                    <option>Artificial</option>
+                                    <option>Mixed</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    Primary Source of Sunlight
+                                </label>
+                                <select class="form-select" name="sunlight_source">
+                                    <option value="">Select</option>
+                                    <option>Windows</option>
+                                    <option>Artificial Only</option>
+                                    <option>Mixed</option>
+                                </select>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- =================================================
+                         SECTION D : MYOPIA HISTORY & PROGRESSION
+                    ================================================= -->
+                    <div class="card mb-3 section-card">
+                        <div class="card-header fw-bold">
+                            Section D: Myopia History & Progression
+                        </div>
+
+                        <div class="card-body row g-3">
+
+                            <div class="col-md-4">
+                                <label class="form-label">
+                                    Diagnosed Earlier
+                                </label>
+                                <select class="form-select" name="diagnosed_earlier">
+                                    <option value="">Select</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">
+                                    Age at Diagnosis
+                                </label>
+                                <input type="number" class="form-control" name="age_at_diagnosis">
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">
+                                    Power Changed Since Last Visit
+                                </label>
+                                <select class="form-select" name="power_changed">
+                                    <option value="">Select</option>
+                                    <option>Yes</option>
+                                    <option>No</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label">Previous RE</label>
+                                <input type="text" class="form-control" name="previous_re">
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label">Previous LE</label>
+                                <input type="text" class="form-control" name="previous_le">
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label">Current RE</label>
+                                <input type="text" class="form-control" name="current_re">
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label">Current LE</label>
+                                <input type="text" class="form-control" name="current_le">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    Compliance with Glasses
+                                </label>
+                                <select class="form-select" name="compliance">
+                                    <option value="">Select</option>
+                                    <option>Good</option>
+                                    <option>Moderate</option>
+                                    <option>Poor</option>
+                                </select>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- =================================================
+                         SECTION F : OCULAR EXAMINATION
+                    ================================================= -->
+                    <div class="card mb-3 section-card">
+                        <div class="card-header fw-bold">
+                            Section F: Ocular Examination
+                        </div>
+
+                        <div class="card-body row g-3">
+
+                            <div class="col-md-3">
+                                <label class="form-label">UCVA RE</label>
+                                <input type="text" class="form-control" name="ucva_re">
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label">UCVA LE</label>
+                                <input type="text" class="form-control" name="ucva_le">
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label">BCVA RE</label>
+                                <input type="text" class="form-control" name="bcva_re">
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label">BCVA LE</label>
+                                <input type="text" class="form-control" name="bcva_le">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    Amblyopia / Strabismus
+                                </label>
+                                <select class="form-select" name="amblyopia_strabismus">
+                                    <option value="">Select</option>
+                                    <option>No</option>
+                                    <option>Yes</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    Fundus Examination Notes
+                                </label>
+                                <textarea class="form-control" name="fundus_notes" rows="2"></textarea>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+
+            <!-- Footer -->
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancel
+                </button>
+                <button class="btn btn-primary" onclick="submitFollowupMock()">
+                    Save Follow-Up
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+    <script>
+        /* =====================================================
+           AUTH & SESSION
+        ===================================================== */
+        const ACCESS_TOKEN = localStorage.getItem("access");
+
+        function requireAuth() {
+            if (!ACCESS_TOKEN) {
+                window.location.href = "login.html";
+            }
+        }
+        requireAuth();
+
+        /* =====================================================
+           DOM HELPERS
+        ===================================================== */
+        const $ = (sel) => document.querySelector(sel);
+        const $$ = (sel) => document.querySelectorAll(sel);
+
+        /* =====================================================
+           SPA NAVIGATION
+        ===================================================== */
+        function toggleSidebar() {
+            $("#sidebar").classList.toggle("collapsed");
+            $("#content").classList.toggle("expanded");
+        }
+
+        function showSection(id, el) {
+            $$(".spa-section").forEach(s => s.classList.remove("active"));
+            $("#" + id).classList.add("active");
+
+            $$("#sidebar .list-group-item").forEach(i => i.classList.remove("active"));
+            el.classList.add("active");
+        }
+
+        /* =====================================================
+           FORMS STATE MANAGEMENT
+        ===================================================== */
+        function switchFormState(state) {
+            ["formsListState", "formsEntryState", "formsSuccessState"].forEach(id => {
+                $("#" + id).style.display = "none";
+            });
+
+            const target = {
+                list: "formsListState",
+                entry: "formsEntryState",
+                success: "formsSuccessState"
+            }[state];
+
+            if (target) {
+                $("#" + target).style.display = "block";
+                $("#" + target).scrollIntoView({ behavior: "smooth" });
+            }
+        }
+
+        function toggleFormInputs(disabled) {
+            $$("#myopiaForm input, #myopiaForm select, #myopiaForm textarea")
+                .forEach(el => el.disabled = disabled);
+        }
+
+        /* =====================================================
+           FORM VIEW / EDIT
+        ===================================================== */
+        function openNewSurvey() {
+            switchFormState("entry");
+            $("#myopiaForm").reset();
+            $("#formEntryTitle").innerText = "New Questionnaire";
+            $("#formSubmitBtnContainer").style.display = "block";
+            toggleFormInputs(false);
+        }
+
+        function viewSubmittedForm(formId) {
+            switchFormState("entry");
+            $("#formEntryTitle").innerText = `Viewing Entry: ${formId}`;
+            toggleFormInputs(true);
+            $("#formSubmitBtnContainer").style.display = "none";
+        }
+
+        /* =====================================================
+           FORM DATA COLLECTION
+        ===================================================== */
+        function collectSectionA() {
+            const parental =
+                $('input[name="parental_myopia"]:checked')?.value || "None";
+
+            return {
+                student_id: "STU-" + Date.now(),
+                name: $('input[name="student_name"]').value.trim(),
+                age: parseInt($('input[name="age"]').value),
+                gender: $('select[name="gender"]').value,
+                height_cm: +$('input[name="height"]').value || 0,
+                weight_kg: +$('input[name="weight"]').value || 0,
+                father_myopia: ["Father", "Both"].includes(parental),
+                mother_myopia: ["Mother", "Both"].includes(parental),
+                number_of_siblings: +$('input[name="num_siblings"]').value || 0,
+                birth_order: $('select[name="birth_order"]').value,
+                sibling_details: $('input[name="siblings_myopia"]').value || ""
+            };
+        }
+
+        function radioValue(name) {
+            return $(`input[name="${name}"]:checked`)?.value;
+        }
+
+        function collectSectionB() {
+            return {
+                outdoor_duration: radioValue("outdoor_duration"),
+                sun_exposure: radioValue("sun_exposure"),
+                near_work_hours: radioValue("near_work_hours"),
+                screen_time: radioValue("screen_time"),
+                primary_device: radioValue("primary_device"),
+                reading_distance: radioValue("reading_distance"),
+                viewing_posture_ratio: radioValue("viewing_posture_ratio"),
+                dietary_habit: radioValue("dietary_habit"),
+                dietary_other: $('input[name="dietary_other"]')?.value || "",
+                sleep_duration: radioValue("sleep_duration"),
+                usual_bedtime: radioValue("usual_bedtime"),
+            };
+        }
+
+        function collectSectionC() {
+            return {
+                school_type: radioValue("school_type"),
+                classroom_strength: radioValue("classroom_strength"),
+                seating_position: radioValue("seating_position"),
+                lighting: radioValue("lighting"),
+                sunlight_source: radioValue("sunlight_source"),
+                teaching_methodology: radioValue("teaching_methodology"),
+            };
+        }
+
+        function collectSectionD() {
+            return {
+                diagnosed_earlier: radioValue("diagnosed_earlier") === "true",
+                age_at_diagnosis: $('input[name="age_at_diagnosis"]').value || null,
+                power_changed_last_3yrs: radioValue("power_changed_last_3yrs") === "true",
+                compliance: radioValue("compliance"),
+                previous_re: $('input[name="previous_re"]').value,
+                previous_le: $('input[name="previous_le"]').value,
+                current_re: $('input[name="current_re"]').value,
+                current_le: $('input[name="current_le"]').value,
+            };
+        }
+
+        function collectSectionE() {
+            const sources = [...$$('input[name="source_of_awareness"]:checked')]
+                .map(el => el.value);
+
+            const other = $('input[name="source_other"]').value;
+            if (other) sources.push(other);
+
+            return {
+                aware_eye_strain: radioValue("aware_eye_strain") === "true",
+                follows_preventive_measures: radioValue("follows_preventive_measures"),
+                access_to_vision_care: radioValue("access_to_vision_care") === "true",
+                source_of_awareness: sources.join(", ")
+            };
+        }
+
+        function collectSectionF() {
+            return {
+                ucva_re: $('input[name="ucva_re"]').value || "",
+                ucva_le: $('input[name="ucva_le"]').value || "",
+                bcva_re: $('input[name="bcva_re"]').value || "",
+                bcva_le: $('input[name="bcva_le"]').value || "",
+                amblyopia_or_strabismus:
+                    radioValue("amblyopia_or_strabismus") === "true",
+                fundus_re: $('textarea[name="fundus_re"]').value || "",
+                fundus_le: $('textarea[name="fundus_le"]').value || ""
+            };
+        }
+
+        function collectFormPayload() {
+            return {
+                student: collectSectionA(),
+                lifestyle: collectSectionB(),
+                environment: collectSectionC(),
+                history: collectSectionD(),
+                awareness: collectSectionE(),
+                ocular: collectSectionF()
+            };
+        }
+
+        /* =====================================================
+           FORM SUBMISSION
+        ===================================================== */
+        async function finalSubmit() {
+            closeReview();
+
+            try {
+                const res = await fetch("/api/forms/submit/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + ACCESS_TOKEN
+                    },
+                    body: JSON.stringify(collectFormPayload())
+                });
+
+                if (!res.ok) throw await res.json();
+
+                const data = await res.json();
+                $("#successFormId").innerText = data.student_id;
+                switchFormState("success");
+
+            } catch (err) {
+                console.error(err);
+                alert("Submission failed");
+            }
+        }
+
+        /* =====================================================
+           REVIEW OVERLAY
+        ===================================================== */
+        function renderReview() {
+            const container = $("#reviewContent");
+            const sections = $$("#forms .section-card");
+
+            if (!sections.length) {
+                container.innerHTML = "<div class='text-muted'>No sections found.</div>";
+                return;
+            }
+
+            container.innerHTML = "";
+            sections.forEach(sec => {
+                const clone = sec.cloneNode(true);
+                clone.querySelectorAll("input, select, textarea, button")
+                    .forEach(el => el.disabled = true);
+                container.appendChild(clone);
+            });
+        }
+
+        function openReview() {
+            $("#popupInline").classList.add("show");
+        }
+        function closeReview() {
+            $("#popupInline").classList.remove("show");
+        }
+        function editForm() {
+            closeReview();
+        }
+
+        /* =====================================================
+           VALIDATION
+        ===================================================== */
+        function validateRadio(name, label) {
+            if (![...$$(`input[name="${name}"]`)].some(r => r.checked)) {
+                alert(`⚠ ${label} is mandatory`);
+                return false;
+            }
+            return true;
+        }
+
+        function validateMyopiaForm() {
+            let valid = true;
+
+            $$("input[required], select[required]").forEach(input => {
+                if (!input.value.trim()) valid = false;
+            });
+
+            [
+                ["parental_myopia", "Parental Myopia"],
+                ["outdoor_duration", "Outdoor Duration"],
+                ["screen_time", "Screen Time"]
+            ].forEach(([n, l]) => valid &= validateRadio(n, l));
+
+            return !!valid;
+        }
+
+        /* =====================================================
+           FORM SUBMIT HANDLER
+        ===================================================== */
+        $("#myopiaForm")?.addEventListener("submit", e => {
+            e.preventDefault();
+            if (!validateMyopiaForm()) return;
+            renderReview();
+            openReview();
+        });
+
+        /* =====================================================
+           LOGOUT
+        ===================================================== */
+        function submitLogout() {
+            if (confirm("Are you sure you want to logout?")) {
+                $("#logoutForm").submit();
+            }
+        }
+
+
+        /* =====================================================
+                    FOLLOW-UPS MODULE
+                    (Admin + User safe, no behavior change)
+        ===================================================== */
+
+        /* -----------------------------
+           State
+        ----------------------------- */
+        const FollowUpsState = {
+            page: 1,
+            pageSize: 50,
+            search: "",
+            isLoading: false,
+        };
+
+        /* -----------------------------
+           Helpers
+        ----------------------------- */
+        function todayISO() {
+            return new Date().toISOString().split("T")[0];
+        }
+
+        function isOverdue(nextVisitDate) {
+            return nextVisitDate < todayISO();
+        }
+
+        function buildQuery(params) {
+            return new URLSearchParams(params).toString();
+        }
+
+        async function fetchFollowUps(params = {}) {
+            const token = localStorage.getItem("access");
+            const query = buildQuery({
+                page: FollowUpsState.page,
+                page_size: FollowUpsState.pageSize,
+                q: FollowUpsState.search,
+                ...params,
+            });
+
+            const res = await fetch(`/api/admin/followups/?${query}`, {
+                headers: {
+                    "Authorization": "Bearer " + token
+                }
+            });
+
+            if (!res.ok) {
+                throw new Error("Failed to load follow-ups");
+            }
+
+            return res.json();
+        }
+
+        /* -----------------------------
+           Rendering
+        ----------------------------- */
+        function renderFollowUps(rows) {
+            const tbody = document.getElementById("followupsTableBody");
+            tbody.innerHTML = "";
+
+            if (!rows.length) {
+                tbody.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center text-muted">
+                    No follow-ups found
+                </td>
+            </tr>
+        `;
+                return;
+            }
+
+            rows.forEach(f => {
+                const overdue = isOverdue(f.next_visit);
+                const badgeClass = overdue ? "bg-danger" : "bg-warning text-dark";
+                const badgeText = overdue ? "Overdue" : "Upcoming";
+
+                tbody.insertAdjacentHTML("beforeend", `
+            <tr>
+                <td>${f.student_id}</td>
+                <td>${f.name}</td>
+                <td>${f.school || "-"}</td>
+                <td>${f.last_visit}</td>
+                <td>${f.next_visit}</td>
+                <td>
+                    <span class="badge ${badgeClass}">
+                        ${badgeText}
+                    </span>
+                </td>
+            </tr>
+        `);
+            });
+        }
+
+        /* -----------------------------
+           Load Pipeline
+        ----------------------------- */
+        async function loadFollowUps() {
+            if (FollowUpsState.isLoading) return;
+
+            FollowUpsState.isLoading = true;
+
+            const tbody = document.getElementById("followupsTableBody");
+            tbody.innerHTML = `
+        <tr>
+            <td colspan="6" class="text-center">
+                Loading...
+            </td>
+        </tr>
+    `;
+
+            try {
+                const data = await fetchFollowUps();
+                renderFollowUps(data);
+            } catch (err) {
+                console.error(err);
+                tbody.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-danger text-center">
+                    Failed to load follow-ups
+                </td>
+            </tr>
+        `;
+            } finally {
+                FollowUpsState.isLoading = false;
+            }
+        }
+
+        /* -----------------------------
+           Search
+        ----------------------------- */
+        function onFollowUpSearch(inputEl) {
+            FollowUpsState.search = inputEl.value.trim();
+            FollowUpsState.page = 1;
+            loadFollowUps();
+        }
+
+        /* -----------------------------
+           Pagination (Ready, even if backend not paginated yet)
+        ----------------------------- */
+        function nextFollowUpsPage() {
+            FollowUpsState.page++;
+            loadFollowUps();
+        }
+
+        function prevFollowUpsPage() {
+            if (FollowUpsState.page > 1) {
+                FollowUpsState.page--;
+                loadFollowUps();
+            }
+        }
+
+        /* -----------------------------
+           Lifecycle
+        ----------------------------- */
+        document.addEventListener("DOMContentLoaded", () => {
+            const searchInput = document.getElementById("followupSearch");
+            if (searchInput) {
+                searchInput.addEventListener("keyup", () =>
+                    onFollowUpSearch(searchInput)
+                );
+            }
+
+            loadFollowUps();
+            loadRecentActivityMock();
+            loadPendingFollowupsMock();
+            loadWeeklyInsightMock();
+            loadFollowupMetricsMock();
+        });
+
+        /* =====================
+           MOCK : RECENT ACTIVITY
+        ===================== */
+        function loadRecentActivityMock() {
+            const mockData = [
+                { id: 1, student: "Rahul Kumar", date: "Today", status: "Submitted" },
+                { id: 2, student: "Priya Singh", date: "Yesterday", status: "Submitted" },
+                { id: 3, student: "Amit Patel", date: "2 days ago", status: "Submitted" },
+                { id: 4, student: "Sara Khan", date: "3 days ago", status: "Submitted" },
+                { id: 5, student: "Rohan Mehta", date: "4 days ago", status: "Submitted" }
+            ];
+
+            const tbody = document.getElementById("recentActivityBody");
+
+            tbody.innerHTML = mockData.map(row => `
+        <tr>
+            <td>${row.student}</td>
+            <td>${row.date}</td>
+            <td>
+                <span class="badge bg-success">
+                    ${row.status}
+                </span>
+            </td>
+            <td class="text-end">
+                <button class="btn btn-sm btn-outline-primary"
+                        onclick="alert('View form ID: ${row.id}')">
+                    View
+                </button>
+            </td>
+        </tr>
+    `).join("");
+        }
+
+        /* =====================
+       MOCK : PENDING FOLLOW-UPS
+    ===================== */
+        function loadPendingFollowupsMock() {
+            const mockFollowups = [
+                { student: "Rahul Kumar", due: "Tomorrow", overdue: false },
+                { student: "Sara Khan", due: "Today", overdue: true },
+                { student: "Amit Patel", due: "In 3 days", overdue: false }
+            ];
+
+            const list = document.getElementById("pendingFollowupsList");
+
+            list.innerHTML = mockFollowups.map(item => `
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+                <div class="fw-semibold">${item.student}</div>
+                <small class="text-muted">
+                    Due ${item.due}
+                </small>
+            </div>
+
+            <span class="badge ${item.overdue ? "bg-danger" : "bg-warning text-dark"
+                }">
+                ${item.overdue ? "Overdue" : "Upcoming"}
+            </span>
+        </li>
+    `).join("");
+        }
+        /* =====================
+           MOCK : WEEKLY INSIGHT
+        ===================== */
+        function loadWeeklyInsightMock() {
+            // mock numbers
+            const thisWeek = 12;
+            const lastWeek = 9;
+
+            document.getElementById("thisWeekCount").innerText = thisWeek;
+            document.getElementById("lastWeekCount").innerText = lastWeek;
+
+            const diff = thisWeek - lastWeek;
+            const icon = document.getElementById("weekTrendIcon");
+            const text = document.getElementById("weekTrendText");
+
+            if (diff > 0) {
+                icon.className = "bi bi-arrow-up-circle-fill text-success fs-2";
+                text.innerText = `+${diff} from last week`;
+            } else if (diff < 0) {
+                icon.className = "bi bi-arrow-down-circle-fill text-danger fs-2";
+                text.innerText = `${diff} from last week`;
+            } else {
+                icon.className = "bi bi-dash-circle-fill text-secondary fs-2";
+                text.innerText = "No change from last week";
+            }
+        }
+
+        /* =====================
+           MOCK : FOLLOW-UPS METRICS
+        ===================== */
+        function loadFollowupMetricsMock() {
+            // mock numbers – change freely to test UI
+            const mock = {
+                total: 18,
+                overdue: 4,
+                upcoming7: 6
+            };
+
+            document.getElementById("totalFollowups").innerText = mock.total;
+            document.getElementById("overdueFollowups").innerText = mock.overdue;
+            document.getElementById("upcomingFollowups").innerText = mock.upcoming7;
+        }
+
+        /* =====================
+       NEW FOLLOW-UP ACTION
+    ===================== */
+       function openNewFollowup() {
+            const modal = new bootstrap.Modal(
+                document.getElementById("followupModal")
+            );
+            modal.show();
+        }
+
+
+       function submitFollowupMock() {
+                const form = document.getElementById("followupForm");
+                const data = Object.fromEntries(new FormData(form).entries());
+
+                data.student_id = document.getElementById("fuStudentId").value;
+                data.last_visit = document.getElementById("fuLastVisit").value;
+                data.next_visit = document.getElementById("fuNextVisit").value;
+
+                console.log("FOLLOW-UP DATA (MOCK):", data);
+
+                alert("Follow-Up captured (mock). Check console.");
+
+                form.reset();
+                bootstrap.Modal.getInstance(
+                    document.getElementById("followupModal")
+                ).hide();
+            }
+
+
+
+
+
+
+    </script>
+
+
+</body>
+
+</html>

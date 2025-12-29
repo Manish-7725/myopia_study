@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: myopia-api
+    env: python
+    buildCommand: |
+      pip install -r requirements.txt
+      python manage.py collectstatic --noinput
+      python manage.py migrate
+    startCommand: gunicorn Myopia_Study.wsgi:application
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: Myopia_Study.settings
+      - key: PYTHON_VERSION
+        value: 3.11

@@ -1,0 +1,1789 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --blue: #0A6EF2;
+            --blue-light: #E9F4FF;
+            --border: #DFE7EE;
+            --sidebar-width: 240px;
+            --sidebar-collapsed: 70px;
+            --bg-main: #F5F7FA;
+        }
+
+        body {
+            background: var(--bg-main) !important;
+            font-family: "Inter", sans-serif;
+        }
+
+        /* Layout container */
+        .app-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR THEME */
+        #sidebar {
+            width: var(--sidebar-width);
+            background: white;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            border-right: 1px solid var(--border);
+            box-shadow: 2px 0 6px rgba(0, 0, 0, 0.03);
+            transition: .3s ease;
+            overflow-x: hidden;
+            z-index: 1030;
+            transition: width 0.3s ease, transform 0.3s ease;
+        }
+
+        /* Layout container */
+        .app-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        /* #sidebar {
+            width: 240px;
+            flex-shrink: 0;
+            height: 100hv;
+            transition: transform 0.3s ease, width 0.3s ease;
+            border-right: 1px solid var(--border);
+            box-shadow: 2px 0 6px rgba(0, 0, 0, 0.03);
+            transition: .3s ease;
+            overflow-x: hidden;
+            z-index: 1030;
+            transition: width 0.3s ease, transform 0.3s ease;
+        } */
+
+        Content #content {
+            flex: 1;
+            padding: 24px;
+        }
+
+        /* Desktop collapse */
+        #sidebar.collapsed {
+            width: 70px;
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .app-layout {
+                position: relative;
+            }
+
+            #sidebar {
+                position: fixed;
+                inset: 0 auto 0 0;
+                transform: translateX(-100%);
+                z-index: 1040;
+            }
+
+            #sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            #content {
+                padding: 16px;
+            }
+        }
+
+
+
+        #content {
+            transition: margin-left 0.3s ease;
+        }
+
+        #content {
+            margin-left: var(--sidebar-width);
+            transition: margin-left 0.3s ease;
+            padding: 26px;
+        }
+
+        /* #sidebar.collapsed+#content,
+        #content.expanded {
+            margin-left: var(--sidebar-collapsed);
+        }
+
+        /* #sidebar.collapsed {
+            width: var(--sidebar-collapsed);
+        } */
+
+        #sidebar .list-group-item {
+            border: none;
+            padding: 14px 18px;
+            cursor: pointer;
+            font-weight: 500;
+            color: #3A3A3A;
+            white-space: nowrap;
+        }
+
+        #sidebar .list-group-item i {
+            width: 22px;
+            font-size: 18px;
+            text-align: center;
+            margin-right: 6px;
+        }
+
+        #sidebar .list-group-item.active {
+            background: var(--blue-light);
+            border-left: 4px solid var(--blue);
+            color: var(--blue);
+            font-weight: 600;
+        }
+
+        #sidebar.collapsed .sidebar-text {
+            display: none !important;
+            transition: opacity 0.2s ease;
+        }
+
+        */
+        /* Better visuals when collapsed */
+        /* #sidebar.collapsed .list-group-item {
+            padding: 14px 10px;
+            text-align: center;
+        }
+
+        #sidebar.collapsed .list-group-item i {
+            margin-right: 0;
+        } */
+        */
+
+        /* TOP NAVBAR */
+        nav.navbar {
+            background: white !important;
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+        }
+
+        .navbar {
+            margin-left: var(--sidebar-width);
+            transition: margin-left 0.3s ease;
+        }
+
+        .collapsed~.navbar {
+            margin-left: var(--sidebar-collapsed);
+        }
+
+        /* CONTENT AREA THEME */
+
+
+
+
+        .navbar button {
+            cursor: pointer;
+        }
+
+        /* 📱 Mobile Sidebar */
+        @media (max-width: 768px) {
+            #sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            #sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+
+
+            .sidebar-backdrop {
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.35);
+                z-index: 999;
+                display: none;
+            }
+
+            .sidebar-backdrop.show {
+                display: block;
+            }
+        }
+
+        .student-row:hover {
+            background-color: #F0F7FF;
+        }
+
+
+        /* SECTION HEADER */
+        .section-title {
+            background: var(--blue-light);
+            color: var(--blue);
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        /* CARDS */
+        .card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        /* BUTTONS */
+        .btn-primary {
+            background: var(--blue) !important;
+            border-color: var(--blue) !important;
+            border-radius: 8px;
+        }
+
+        .btn-primary:hover {
+            background: #0756BE !important;
+        }
+
+        /* TABLE THEME */
+        table thead {
+            background: var(--blue-light);
+            border-bottom: 1px solid var(--border);
+        }
+
+        table tbody tr:hover {
+            background: #F7FBFF;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0
+            }
+
+            to {
+                opacity: 1
+            }
+        }
+
+        .error-msg {
+            color: #d9534f;
+            font-size: 12px;
+            margin-top: 3px;
+        }
+
+        input.is-invalid,
+        select.is-invalid {
+            border-color: #d9534f !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="sidebar">
+        <div class="p-3 fw-bold text-center" style="color:var(--blue); font-size:20px;">
+            <span class="sidebar-text">Admin Panel</span>
+        </div>
+
+        <div class="list-group list-group-flush">
+            <a class="list-group-item active" onclick="showSection('overview', this)"><i class="bi bi-grid">
+                </i><span class="sidebar-text">Overview</span></a>
+
+            <a class="list-group-item" onclick="showSection('students', this)"><i class="bi bi-people"></i><span
+                    class="sidebar-text">Students</span></a>
+            <a class="list-group-item" onclick="showSection('profile', this)"><i class="bi bi-person-badge"></i><span
+                    class="sidebar-text">Profiles</span></a>
+            <a class="list-group-item" onclick="showSection('followups', this)"><i
+                    class="bi bi-calendar-check"></i><span class="sidebar-text">Follow-Ups</span></a>
+            <a class="list-group-item" onclick="showSection('scheduler', this)"><i class="bi bi-calendar3"></i><span
+                    class="sidebar-text">Scheduler</span></a>
+            <a class="list-group-item" onclick="showSection('users', this)"><i class="bi bi-person-gear"></i><span
+                    class="sidebar-text">Users</span></a>
+            <a class="list-group-item" onclick="showSection('settings', this)"><i class="bi bi-gear"></i><span
+                    class="sidebar-text">Settings</span></a>
+            <a class="list-group-item text-danger" onclick="logout()"><i class="fa fa-sign-out-alt"></i><span
+                    class="sidebar-text">Logout</span></a>
+        </div>
+    </div>
+
+    <nav class="navbar bg-white border-bottom sticky-top px-3" style="z-index: 1020;">
+        <button class="btn btn-light border" onclick="toggleSidebar()">
+            <i class="bi bi-list"></i>
+        </button>
+
+        <div class="ms-auto dropdown">
+            <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle text-dark"
+                id="adminProfileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <div class="text-end me-2 d-none d-md-block">
+                    <div class="fw-bold small">AdminUser</div>
+                    <div class="text-muted" style="font-size: 0.75rem;">Administrator</div>
+                </div>
+                <img src="https://ui-avatars.com/api/?name=Admin&background=0D6EFD&color=fff"
+                    class="rounded-circle border" width="38" height="38">
+            </a>
+
+            <div class="dropdown-menu dropdown-menu-end shadow-lg border-0 p-0" aria-labelledby="adminProfileDropdown"
+                style="width: 280px;">
+
+                <div class="bg-primary p-3 rounded-top text-white">
+                    <h6 class="mb-0 fw-bold">Admin Panel</h6>
+                    <small class="text-white-50">System Management</small>
+                </div>
+
+                <div class="p-3">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="rounded-circle bg-light text-primary d-flex justify-content-center align-items-center fw-bold border"
+                            style="width:50px; height:50px; font-size:20px;">
+                            A
+                        </div>
+                        <div style="overflow: hidden;">
+                            <h6 class="fw-bold mb-0 text-truncate">Super Admin</h6>
+                            <small class="text-muted">admin@system.com</small>
+                        </div>
+                    </div>
+
+                    <div class="modal fade" id="editStudentModal" tabindex="-1">
+                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                            <div class="modal-content">
+
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Edit Student</h5>
+                                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+
+                                <div class="modal-body">
+                                    <input type="hidden" id="editStudentId">
+
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Name</label>
+                                            <input id="editName" class="form-control">
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <label class="form-label">Age</label>
+                                            <input id="editAge" type="number" class="form-control">
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <label class="form-label">Gender</label>
+                                            <select id="editGender" class="form-select">
+                                                <option value="Male">Male</option>
+                                                <option value="Female">Female</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-12">
+                                            <label class="form-label">School</label>
+                                            <input id="editSchool" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button class="btn btn-primary" onclick="saveStudentEdits()">Save Changes</button>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="modal fade" id="studentModal" tabindex="-1">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Student Profile</h5>
+                                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+
+                                <div class="modal-body" id="studentModalBody">
+                                    Loading...
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="border-top p-2 bg-light rounded-bottom text-center">
+                        <a href="#" class="text-danger text-decoration-none small fw-bold" onclick="logout()">
+                            <i class="bi bi-power me-1"></i> Secure Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+    </nav>
+
+    <div id="content">
+
+        <section id="overview">
+            <div class="section-title">Dashboard Overview</div>
+
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <div class="card p-3">
+                        <small class="text-muted">Total Students</small>
+                        <h3 class="fw-bold" id="totalStudents">--</h3>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card p-3">
+                        <small class="text-muted">Total Follow-Ups</small>
+                        <h3 class="fw-bold" id="totalFollowups">--</h3>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card p-3">
+                        <small class="text-muted text-warning">Due Follow-ups</small>
+                        <h3 class="fw-bold text-warning" id="dueFollowups" style="cursor:pointer">--</h3>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card p-3">
+                        <small class="text-muted">Missed Follow-Ups</small>
+                        <h3 class="fw-bold text-danger" id="overdueFollowups">--</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4 p-3">
+                <h6 class="fw-bold">Activity Overview</h6>
+                <canvas id="activityChart" height="120"></canvas>
+            </div>
+
+            <div class="card mt-4 p-3">
+                <h6 class="fw-bold mb-2">Recent Activity (Last 7 Days)</h6>
+                <div id="recentActivityText" class="text-muted small">
+                    Loading activity...
+                </div>
+            </div>
+
+
+        </section>
+
+
+        <section id="students" class="d-none">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">Students</h5>
+
+                <div class="d-flex gap-2 align-items-center">
+
+                    <!-- Search -->
+                    <input type="text" id="studentSearch" class="form-control form-control-sm"
+                        placeholder="Search by ID / Name / School" onkeyup="handleStudentSearch()"
+                        style="width: 220px;" />
+
+                    <!-- Filter -->
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="bi bi-funnel"></i> Filter
+                        </button>
+
+                        <div class="dropdown-menu dropdown-menu-end p-3" style="width: 300px;">
+
+                            <h6 class="fw-bold mb-2">Filter Students</h6>
+
+                            <!-- From Date -->
+                            <div class="mb-2">
+                                <label class="form-label small">From Date</label>
+                                <input type="date" id="filterFromDate" class="form-control form-control-sm">
+                            </div>
+
+                            <!-- To Date -->
+                            <div class="mb-2">
+                                <label class="form-label small">To Date</label>
+                                <input type="date" id="filterToDate" class="form-control form-control-sm">
+                            </div>
+
+                            <!-- Gender -->
+                            <div class="mb-2">
+                                <label class="form-label small">Gender</label>
+                                <select id="filterGender" class="form-select form-select-sm">
+                                    <option value="">All</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+
+                            <!-- School (text for now) -->
+                            <div class="mb-2">
+                                <label class="form-label small">School Name</label>
+                                <input type="text" id="filterSchool" class="form-control form-control-sm"
+                                    placeholder="Enter school name">
+                            </div>
+
+                            <div class="d-flex justify-content-between mt-3">
+                                <button class="btn btn-light btn-sm" onclick="clearStudentFilters()">
+                                    Clear
+                                </button>
+                                <button class="btn btn-primary btn-sm" onclick="applyStudentFilters()">
+                                    Apply
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Student ID</th>
+                            <th>Name</th>
+                            <th>School</th>
+                            <th>Age</th>
+                            <th>Gender</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentsTable">
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex justify-content-between mt-3">
+                <button class="btn btn-outline-secondary btn-sm" id="prevBtn" onclick="prevPage()">Prev</button>
+                <button class="btn btn-outline-secondary btn-sm" id="nextBtn" onclick="nextPage()">Next</button>
+            </div>
+
+        </section>
+
+
+        <section id="profile" class="d-none">
+            <div class="section-title">Student Profile</div>
+            <div id="profileContent" class="card p-3">
+                <div class="text-center py-5 text-muted">Select a student and click "View Profile"</div>
+            </div>
+        </section>
+
+        <section id="followups" class="d-none">
+            <div class="section-title">Follow-Up Records</div>
+
+            <div class="card p-3">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Student</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="followupsTableBody"></tbody>
+
+                </table>
+            </div>
+        </section>
+
+        <section id="scheduler" class="d-none">
+            <div class="section-title">Follow-Up Scheduler</div>
+            <div class="card p-3">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Last Visit</th>
+                            <th>Next Visit</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Rahul Kumar</td>
+                            <td>Oct 10, 2024</td>
+                            <td>Jan 10, 2025</td>
+                            <td><span class="badge bg-success">Upcoming</span></td>
+                        </tr>
+                        <tr>
+                            <td>Amit Sharma</td>
+                            <td>Sep 15, 2024</td>
+                            <td>Dec 15, 2024</td>
+                            <td><span class="badge bg-warning">Due</span></td>
+                        </tr>
+                        <tr>
+                            <td>Sneha Gupta</td>
+                            <td>Aug 01, 2024</td>
+                            <td>Nov 01, 2024</td>
+                            <td><span class="badge bg-danger">Overdue</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="users" class="d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="section-title mb-0">User Management</div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                        <i class="bi bi-person-plus-fill me-1"></i> Add User
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal"
+                        data-bs-target="#addAdminModal">
+                        <i class="bi bi-shield-lock-fill me-1"></i> Add Admin
+                    </button>
+                </div>
+            </div>
+
+            <div class="card p-0 overflow-hidden shadow-sm">
+                <div class="table-responsive">
+                    <table class="table align-middle table-hover mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4">Username</th>
+                                <th>Full Name</th>
+                                <th>Role</th>
+                                <th>Date Joined</th>
+                                <th class="text-end pe-4">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <tr>
+                                <td class="ps-4 fw-bold">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span
+                                            class="rounded-circle bg-danger text-white d-flex justify-content-center align-items-center"
+                                            style="width:32px; height:32px; font-size:12px;">AD</span>
+                                        admin_user
+                                    </div>
+                                </td>
+                                <td>System Admin</td>
+                                <td><span class="badge bg-danger">Super Admin</span></td>
+                                <td class="text-muted small">Oct 12, 2024</td>
+                                <td class="text-end pe-4">
+                                    <button class="btn btn-sm btn-light border" disabled title="Cannot remove yourself">
+                                        <i class="bi bi-trash text-muted"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td class="ps-4 fw-bold">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span
+                                            class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center"
+                                            style="width:32px; height:32px; font-size:12px;">JD</span>
+                                        jdoe_clinician
+                                    </div>
+                                </td>
+                                <td>John Doe</td>
+                                <td><span class="badge bg-info text-dark">Clinician</span></td>
+                                <td class="text-muted small">Dec 01, 2024</td>
+                                <td class="text-end pe-4">
+                                    <button class="btn btn-sm btn-light border" onclick="removeUser(this)">
+                                        <i class="bi bi-trash text-danger"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="settings" class="d-none">
+            <div class="section-title">Settings</div>
+            <div class="card p-3">
+                <form method="POST" action="#">
+
+                    <div class="mb-3">
+                        <label class="form-label">Follow-Up Interval (days)</label>
+                        <input type="number" name="followup_interval" class="form-control w-25" value="30">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Add School</label>
+                        <input type="text" name="new_school" class="form-control w-50" placeholder="School name">
+                    </div>
+                    <button class="btn btn-primary">Save</button>
+                </form>
+            </div>
+        </section>
+
+    </div>
+
+    <div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Create New User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createUserForm" onsubmit="handleCreateUser(event)">
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Full Name</label>
+                            <input type="text" name="fullname" class="form-control" placeholder="e.g. Dr. Sarah Smith"
+                                required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Username</label>
+                            <input type="text" name="username" class="form-control" placeholder="e.g. sarah_clinician"
+                                required>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label class="form-label small fw-bold">Email</label>
+                                <input type="email" name="email" class="form-control" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-bold">Role</label>
+                                <select name="role" class="form-select">
+                                    <option value="Clinician">Clinician</option>
+                                    <option value="Surveyor">Surveyor</option>
+                                    <option value="Viewer">Viewer</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Temporary Password</label>
+                            <input type="password" name="password" class="form-control" value="Welcome123" required>
+                        </div>
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Create Account</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addAdminModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content border-danger">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-shield-lock me-2"></i>Create New Admin</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning small mb-3">
+                        <i class="bi bi-exclamation-triangle me-1"></i>
+                        Admins have <strong>full access</strong> to modify, delete, and export all system data.
+                    </div>
+                    <form id="createAdminForm" onsubmit="handleCreateAdmin(event)">
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Admin Username</label>
+                            <input type="text" name="username" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Email Address</label>
+                            <input type="email" name="email" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Password</label>
+                            <input type="password" name="password" class="form-control" required>
+                        </div>
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-danger">Grant Admin Access</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form id="deleteForm" method="POST" style="display:none;"></form>
+    <!-- Delete Student Modal -->
+    <div class="modal fade" id="deleteStudentModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <p>
+                        Are you sure you want to delete
+                        <strong id="deleteStudentName"></strong>?
+                    </p>
+                    <p class="text-danger small mb-0">
+                        This action cannot be undone.
+                    </p>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+                    <button class="btn btn-danger" onclick="confirmDeleteStudent()">
+                        Delete
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Student Modal -->
+    <div class="modal fade" id="addStudentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Add New Student</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addStudentForm" onsubmit="handleAddStudent(event)">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Full Name</label>
+                                <input type="text" name="name" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Student ID</label>
+                                <input type="text" name="student_id" class="form-control" placeholder="e.g. STU-2024"
+                                    required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold">Age</label>
+                                <input type="number" name="age" class="form-control" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold">Gender</label>
+                                <select name="gender" class="form-select">
+                                    <option>Male</option>
+                                    <option>Female</option>
+                                    <option>Other</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold">School</label>
+                                <input type="text" name="school" class="form-control" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-bold">Parent Name</label>
+                                <input type="text" name="parent" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-end">
+                            <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Add Student</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="editVisitModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Visit</h5>
+                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <ul class="nav nav-tabs mb-3">
+                        <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab"
+                                href="#tabLifestyle">Lifestyle</a></li>
+                        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab"
+                                href="#tabEnvironment">Environment</a>
+                        </li>
+                        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabHistory">Clinical
+                                History</a></li>
+                        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabAwareness">Awareness</a>
+                        </li>
+                        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabOcular">Ocular Exam</a>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="tabLifestyle"></div>
+                        <div class="tab-pane fade" id="tabEnvironment"></div>
+                        <div class="tab-pane fade" id="tabHistory"></div>
+                        <div class="tab-pane fade" id="tabAwareness"></div>
+                        <div class="tab-pane fade" id="tabOcular"></div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary" onclick="saveVisitEdits()">Save Visit</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- VIEW STUDENT MODAL -->
+    <div class="modal fade" id="viewStudentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Student Details</h5>
+                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body" id="viewStudentContent">
+                    <div class="text-center text-muted py-5">
+                        Loading student profile...
+                    </div>
+                </div>
+
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- EDIT STUDENT MODAL -->
+    <div class="modal fade" id="editStudentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Edit Student</h5>
+                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body" id="viewStudentContent">
+                    <div class="text-center text-muted py-5">
+                        Loading student profile...
+                    </div>
+                </div>
+
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary" onclick="saveStudentEdits()">Save Changes</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- DELETE STUDENT MODAL -->
+    <div class="modal fade" id="deleteStudentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-danger">
+
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <p>
+                        Are you sure you want to delete
+                        <strong id="deleteStudentName"></strong>?
+                    </p>
+                    <p class="text-danger small mb-0">
+                        This action cannot be undone.
+                    </p>
+
+                    <input type="hidden" id="deleteStudentId">
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-danger" onclick="confirmDeleteStudent()">
+                        Delete
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+
+    <script>
+
+        /* =========================================================
+                        1. GLOBAL APP STATE
+        ========================================================= */
+        const AppState = {
+            auth: {
+                token: localStorage.getItem("access"),
+                role: localStorage.getItem("role"),
+            },
+            ui: {
+                isMobile: window.innerWidth <= 768,
+            },
+            students: {
+                page: 1,
+                next: null,
+                prev: null,
+                query: "",
+                filters: {
+                    fromDate: "",
+                    toDate: "",
+                    gender: "",
+                    school: ""
+                }
+            }
+
+
+        };
+
+        const API_BASE = "http://127.0.0.1:8000/api";
+
+
+
+        /* =========================================================
+       MODULE 2: AUTH & ACCESS CONTROL
+    ========================================================= */
+
+        function enforceAdminAccess() {
+            if (!AppState.auth.token) {
+                redirectToLogin();
+            }
+
+            if (AppState.auth.role !== "admin") {
+                alert("Access denied: Admins only");
+                logout();
+            }
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = "login.html";
+        }
+
+        function redirectToLogin() {
+            window.location.href = "login.html";
+        }
+
+        // const API_BASE = "http://127.0.0.1:8000/api";
+        const AUTH_TOKEN = localStorage.getItem("access");
+
+
+        /* =========================================================
+           3. API HELPER
+        ========================================================= */
+        async function apiRequest(endpoint, options = {}) {
+            const response = await fetch(`${API_BASE}${endpoint}`, {
+                ...options,
+                headers: {
+                    "Authorization": `Bearer ${AUTH_TOKEN}`,
+                    "Content-Type": "application/json",
+                    ...(options.headers || {})
+                }
+            });
+
+            if (response.status === 401) {
+                alert("Session expired. Please login again.");
+                localStorage.clear();
+                window.location.href = "login.html";
+                throw new Error("Unauthorized");
+            }
+
+            if (!response.ok) {
+                throw new Error(`API error ${response.status}`);
+            }
+
+            return response.json(); // ✅ ALWAYS return parsed JSON
+        }
+
+        /* =========================================================
+           MODULE 4: SIDEBAR & NAVIGATION
+        ========================================================= */
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById("sidebar");
+            const backdrop = document.getElementById("sidebarBackdrop");
+
+            if (window.innerWidth <= 768) {
+                sidebar.classList.toggle("mobile-open");
+                backdrop?.classList.toggle("show");
+            } else {
+                sidebar.classList.toggle("collapsed");
+                localStorage.setItem(
+                    "adminSidebarCollapsed",
+                    sidebar.classList.contains("collapsed") ? "1" : "0"
+                );
+            }
+        }
+
+        function closeMobileSidebar() {
+            document.getElementById("sidebar")?.classList.remove("mobile-open");
+            document.getElementById("sidebarBackdrop")?.classList.remove("show");
+        }
+
+        function showSection(sectionId, element) {
+            document.querySelectorAll("#content section")
+                .forEach(sec => sec.classList.add("d-none"));
+
+            document.getElementById(sectionId)?.classList.remove("d-none");
+
+            document.querySelectorAll("#sidebar .list-group-item")
+                .forEach(item => item.classList.remove("active"));
+
+            if (element) element.classList.add("active");
+
+            // Lazy loads
+            if (sectionId === "overview") loadDashboardOverview();
+            if (sectionId === "students") loadStudents(1);
+            if (sectionId === "followups") loadFollowups();
+        }
+
+        /* =========================================================
+               MODULE 5: DASHBOARD OVERVIEW
+        ========================================================= */
+
+        async function loadDashboardOverview() {
+            try {
+                const data = await apiRequest("/admin/overview/");
+
+                updateText("totalStudents", data.total_students);
+                updateText("totalFollowups", data.total_followups);
+                updateText("dueThisWeek", data.due_this_week);
+                updateText("missedFollowups", data.missed_followups);
+            } catch (err) {
+                console.error("Dashboard overview failed", err);
+            }
+        }
+
+
+        async function loadAdminOverview() {
+            const token = localStorage.getItem("access");
+            if (!token) {
+                window.location.href = "login.html";
+                return;
+            }
+
+            try {
+                const res = await fetch("http://127.0.0.1:8000/api/admin/overview/", {
+                    headers: {
+                        "Authorization": "Bearer " + token
+                    }
+                });
+
+                if (res.status === 401) {
+                    localStorage.clear();
+                    window.location.href = "login.html";
+                    return;
+                }
+
+                const data = await res.json();
+
+                document.getElementById("totalStudents").innerText = data.total_students;
+                document.getElementById("totalFollowups").innerText = data.total_followups;
+                document.getElementById("dueFollowups").innerText = data.due_this_week;
+                document.getElementById("overdueFollowups").innerText = data.missed_followups;
+
+            } catch (err) {
+                console.error("Admin overview failed", err);
+            }
+        }
+
+
+        document.getElementById("dueFollowups")?.addEventListener("click", () => {
+            showSection("followups",
+                document.querySelector('[onclick*="followups"]')
+            );
+            applyFollowupStatusFilter("Due");
+        });
+
+        function applyFollowupStatusFilter(status) {
+            const select = document.getElementById("followupStatusFilter");
+            if (select) {
+                select.value = status;
+                applyFollowupFilters();
+            }
+        }
+
+
+        async function loadActivityChart() {
+            const token = localStorage.getItem("access");
+
+            const res = await fetch(
+                "http://127.0.0.1:8000/api/admin/activity-analytics/",
+                {
+                    headers: { "Authorization": "Bearer " + token }
+                }
+            );
+
+            if (res.status === 401) {
+                window.location.href = "login.html";
+                return;
+            }
+
+            const data = await res.json();
+
+            // ---- TEXT SUMMARY ----
+            const totalStudents7 = data.students.reduce((a, b) => a + b, 0);
+            const totalFollowups7 = data.followups.reduce((a, b) => a + b, 0);
+
+            const textEl = document.getElementById("recentActivityText");
+            if (textEl) {
+                textEl.innerHTML = `
+            • Students added: <strong>${totalStudents7}</strong><br>
+            • Follow-ups created: <strong>${totalFollowups7}</strong>
+        `;
+            }
+
+            // ---- CHART ----
+            const ctx = document.getElementById("activityChart");
+            if (!ctx) return;
+
+            new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: data.labels,
+                    datasets: [
+                        {
+                            label: "Students",
+                            data: data.students,
+                            borderWidth: 2,
+                            tension: 0.3
+                        },
+                        {
+                            label: "Follow-ups",
+                            data: data.followups,
+                            borderWidth: 2,
+                            tension: 0.3
+                        }
+                    ]
+                }
+            });
+        }
+
+        /* =========================================================
+           MODULE 6: STUDENTS LIST & PAGINATION
+        ========================================================= */
+
+        function showStudentsLoading() {
+            const tbody = document.getElementById("studentsTable");
+            tbody.innerHTML = `
+        <tr>
+            <td colspan="7" class="text-center text-muted py-4">
+                <span class="spinner-border spinner-border-sm me-2"></span>
+                Loading students...
+            </td>
+        </tr>
+    `;
+        }
+
+
+        async function loadStudents(page = 1, q = AppState.students.query) {
+                showStudentsLoading();
+
+                const token = localStorage.getItem("access");
+                if (!token) {
+                    logout();
+                    return;
+                }
+
+                AppState.students.page = page;
+                AppState.students.query = q;
+
+                let url = `http://127.0.0.1:8000/api/admin/students/?page=${page}`;
+
+                if (q) url += `&q=${encodeURIComponent(q)}`;
+
+                const { fromDate, toDate, gender, school } = AppState.students.filters;
+
+                if (fromDate) url += `&from_date=${fromDate}`;
+                if (toDate) url += `&to_date=${toDate}`;
+                if (gender) url += `&gender=${encodeURIComponent(gender)}`;
+                if (school) url += `&school=${encodeURIComponent(school)}`;
+
+                try {
+                    const res = await fetch(url, {
+                        headers: {
+                            "Authorization": "Bearer " + token
+                        }
+                    });
+
+                    if (!res.ok) {
+                        throw new Error("Failed to load students: " + res.status);
+                    }
+
+                    const data = await res.json(); // ✅ THIS WAS MISSING
+
+                    // ✅ SAVE PAGINATION STATE
+                    AppState.students.next = data.next;
+                    AppState.students.prev = data.previous;
+
+                    document.getElementById("prevBtn").disabled = !data.previous;
+                    document.getElementById("nextBtn").disabled = !data.next;
+
+                    renderStudents(data.results);
+
+                } catch (err) {
+                    console.error(err);
+                    document.getElementById("studentsTable").innerHTML = `
+            <tr>
+                <td colspan="7" class="text-danger text-center py-4">
+                    Failed to load students
+                </td>
+            </tr>
+        `;
+                }
+            }
+
+
+
+
+        function renderStudentRow(student) {
+            return `
+        <tr class="student-row"
+            onclick="onStudentRowClick(event, '${student.student_id}')"
+            style="cursor:pointer">
+
+            <td>${student.student_id}</td>
+            <td>${student.name}</td>
+            <td>${student.school_name || "-"}</td>
+            <td>${student.age}</td>
+            <td>${student.gender}</td>
+            <td>${student.created_at ? student.created_at.split("T")[0] : "-"}</td>
+
+            <td class="text-nowrap">
+                <button class="btn btn-sm btn-outline-primary"
+                    onclick="viewStudent('${student.student_id}')">View</button>
+                <button class="btn btn-sm btn-outline-secondary"
+                    onclick="editStudent('${student.student_id}')">Edit</button>
+                <button class="btn btn-sm btn-outline-danger"
+                    onclick="deleteStudent('${student.student_id}')">Delete</button>
+            </td>
+        </tr>
+    `;
+        }
+
+        function onStudentRowClick(event, studentId) {
+            // If user clicked a button or inside Actions column, ignore row click
+            const tag = event.target.tagName.toLowerCase();
+
+            if (tag === "button" || event.target.closest("button")) {
+                return;
+            }
+
+            viewStudent(studentId);
+        }
+
+
+
+
+
+        function nextPage() {
+            if (AppState.students.next) {
+                loadStudents(
+                    AppState.students.page + 1,
+                    AppState.students.query
+                );
+            }
+        }
+
+        function prevPage() {
+            if (AppState.students.prev) {
+                loadStudents(
+                    AppState.students.page - 1,
+                    AppState.students.query
+                );
+            }
+        }
+
+
+
+        /* =========================================================
+           MODULE 7: STUDENT VIEW & DELETE
+        ========================================================= */
+
+        async function viewStudent(studentId) {
+            const token = localStorage.getItem("access");
+            if (!token) return alert("Session expired");
+
+            const modal = new bootstrap.Modal(
+                document.getElementById("viewStudentModal")
+            );
+
+            const container = document.getElementById("viewStudentContent");
+            container.innerHTML = `<div class="text-muted text-center py-4">Loading...</div>`;
+
+            modal.show();
+
+            try {
+                const res = await fetch(
+                    `http://127.0.0.1:8000/api/admin/student/${studentId}/`,
+                    {
+                        headers: {
+                            "Authorization": "Bearer " + token
+                        }
+                    }
+                );
+
+                if (!res.ok) throw new Error("Failed to load student");
+
+                const data = await res.json();
+                renderStudentProfile(data);
+
+            } catch (err) {
+                container.innerHTML = `
+            <div class="text-danger text-center py-4">
+                Failed to load student profile
+            </div>
+        `;
+                console.error(err);
+            }
+        }
+
+        function renderStudentProfile(data) {
+            const c = document.getElementById("viewStudentContent");
+
+            // latest visit helpers
+            const last = arr => arr && arr.length ? arr[arr.length - 1] : null;
+
+            const lifestyle = last(data.lifestyles);
+            const environment = last(data.environments);
+            const history = last(data.histories);
+            const awareness = last(data.awareness);
+            const ocular = last(data.ocular);
+
+            c.innerHTML = `
+        <!-- SECTION A -->
+        <h6 class="fw-bold text-primary mt-2">Section A – Student Details</h6>
+        <table class="table table-sm">
+            <tr><td>ID</td><td>${data.student_id}</td></tr>
+            <tr><td>Name</td><td>${data.name}</td></tr>
+            <tr><td>Age</td><td>${data.age}</td></tr>
+            <tr><td>Gender</td><td>${data.gender}</td></tr>
+        </table>
+
+        <!-- SECTION B -->
+        ${lifestyle ? `
+        <h6 class="fw-bold text-primary mt-4">Section B – Lifestyle</h6>
+        <table class="table table-sm">
+            <tr><td>Outdoor Duration</td><td>${lifestyle.outdoor_duration}</td></tr>
+            <tr><td>Sun Exposure</td><td>${lifestyle.sun_exposure}</td></tr>
+            <tr><td>Screen Time</td><td>${lifestyle.screen_time}</td></tr>
+            <tr><td>Sleep Duration</td><td>${lifestyle.sleep_duration}</td></tr>
+        </table>` : ""}
+
+        <!-- SECTION C -->
+        ${environment ? `
+        <h6 class="fw-bold text-primary mt-4">Section C – Environment</h6>
+        <table class="table table-sm">
+            <tr><td>School Type</td><td>${environment.school_type}</td></tr>
+            <tr><td>Classroom Strength</td><td>${environment.classroom_strength}</td></tr>
+            <tr><td>Lighting</td><td>${environment.lighting}</td></tr>
+        </table>` : ""}
+
+        <!-- SECTION D -->
+        ${history ? `
+        <h6 class="fw-bold text-primary mt-4">Section D – Clinical History</h6>
+        <table class="table table-sm">
+            <tr><td>Diagnosed Earlier</td><td>${history.diagnosed_earlier ? "Yes" : "No"}</td></tr>
+            <tr><td>Compliance</td><td>${history.compliance}</td></tr>
+            <tr><td>Power Changed (3 yrs)</td><td>${history.power_changed_last_3yrs ? "Yes" : "No"}</td></tr>
+        </table>` : ""}
+
+        <!-- SECTION E -->
+        ${awareness ? `
+        <h6 class="fw-bold text-primary mt-4">Section E – Awareness</h6>
+        <table class="table table-sm">
+            <tr><td>Aware Eye Strain</td><td>${awareness.aware_eye_strain ? "Yes" : "No"}</td></tr>
+            <tr><td>Vision Care Access</td><td>${awareness.access_to_vision_care ? "Yes" : "No"}</td></tr>
+            <tr><td>Source</td><td>${awareness.source_of_awareness}</td></tr>
+        </table>` : ""}
+
+        <!-- SECTION F -->
+        ${ocular ? `
+        <h6 class="fw-bold text-primary mt-4">Section F – Ocular Exam</h6>
+        <table class="table table-sm">
+            <tr><td>UCVA (RE/LE)</td><td>${ocular.ucva_re} / ${ocular.ucva_le}</td></tr>
+            <tr><td>BCVA (RE/LE)</td><td>${ocular.bcva_re} / ${ocular.bcva_le}</td></tr>
+            <tr><td>Amblyopia</td><td>${ocular.amblyopia_or_strabismus ? "Yes" : "No"}</td></tr>
+        </table>` : ""}
+    `;
+        }
+
+        async function deleteStudent(studentId) {
+            if (!confirm("Delete this student?")) return;
+
+            await apiRequest(`/admin/student/${studentId}/`, {
+                method: "DELETE",
+            });
+
+            loadStudents(
+                AppState.students.page,
+                AppState.students.query
+            );
+
+
+        }
+
+        /* =========================================================
+           MODULE 8: FOLLOWUPS
+        ========================================================= */
+
+        async function loadFollowups() {
+            const tbody = document.getElementById("followupsTableBody");
+            tbody.innerHTML = `<tr><td colspan="5">Loading...</td></tr>`;
+
+            try {
+                const data = await apiRequest("/admin/followups/");
+
+                if (!data.length) {
+                    tbody.innerHTML = `<tr><td colspan="5">No follow-ups</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = data.map(f => `
+            <tr>
+                <td>${f.id}</td>
+                <td>${f.student_name}</td>
+                <td>${f.visit_date}</td>
+                <td>
+                    <span class="badge ${f.power_changed_last_3yrs ? 'bg-warning' : 'bg-success'}">
+                        ${f.power_changed_last_3yrs ? 'Power Changed' : 'Stable'}
+                    </span>
+                </td>
+                <td class="text-end">
+                    <button class="btn btn-sm btn-outline-primary"
+                        onclick="viewFollowup(${f.id})">View</button>
+                </td>
+            </tr>
+        `).join("");
+            } catch {
+                tbody.innerHTML = `<tr><td colspan="5">Failed to load</td></tr>`;
+            }
+        }
+
+        function viewFollowup(followupId) {
+            alert("Follow-up view coming next. ID: " + followupId);
+        }
+
+
+        /* =========================================================
+                   9. UTILITIES
+        ========================================================= */
+        function updateText(id, value) {
+            const el = document.getElementById(id);
+            if (el) el.innerText = value;
+        }
+
+        function getValue(id) {
+            return document.getElementById(id)?.value || "";
+        }
+
+        function setDisabled(id, disabled) {
+            const el = document.getElementById(id);
+            if (el) el.disabled = disabled;
+        }
+
+        // function hideAllSections() {
+        //     document.querySelectorAll("#content section")
+        //         .forEach(s => s.classList.add("d-none"));
+        // }
+
+        // function showElement(id) {
+        //     document.getElementById(id)?.classList.remove("d-none");
+        // }
+
+        // function setActiveSidebarItem(item) {
+        //     document.querySelectorAll("#sidebar .list-group-item")
+        //         .forEach(i => i.classList.remove("active"));
+        //     if (item) item.classList.add("active");
+        // }
+
+        // function renderLoadingRow(tbody, cols) {
+        //     tbody.innerHTML = `<tr><td colspan="${cols}" class="text-center">Loading...</td></tr>`;
+        // }
+
+        // function renderEmptyRow(tbody, cols, text) {
+        //     tbody.innerHTML = `<tr><td colspan="${cols}" class="text-center text-muted">${text}</td></tr>`;
+        // }
+
+        // function renderErrorRow(tbody, cols, text) {
+        //     tbody.innerHTML = `<tr><td colspan="${cols}" class="text-center text-danger">${text}</td></tr>`;
+        // }
+
+        // function formatDate(dateStr) {
+        //     return new Date(dateStr).toLocaleDateString();
+        // }
+
+        // function showModal(id) {
+        //     new bootstrap.Modal(document.getElementById(id)).show();
+        // }
+
+        /* =========================================================
+     MODULE 10: BOOTSTRAP
+  ========================================================= */
+
+        document.addEventListener("DOMContentLoaded", () => {
+            enforceAdminAccess();
+
+            // Restore sidebar state
+            const saved = localStorage.getItem("adminSidebarCollapsed");
+            if (saved === "1") {
+                document.getElementById("sidebar")?.classList.add("collapsed");
+            }
+
+            loadDashboardOverview();
+            loadStudents(1);
+            loadActivityChart();
+        });
+
+
+
+        /* =========================================================
+           MODULE 11: EDIT STUDENT
+        ========================================================= */
+
+        /**
+         * Opens Edit Student modal and pre-fills data
+         */
+        async function editStudent(studentId) {
+            try {
+                const s = await apiRequest(`/admin/student/${studentId}/`);
+
+                document.getElementById("editStudentId").value = s.student_id;
+                document.getElementById("editName").value = s.name;
+                document.getElementById("editAge").value = s.age;
+                document.getElementById("editGender").value = s.gender;
+                document.getElementById("editSchool").value = s.school || "";
+
+                new bootstrap.Modal(
+                    document.getElementById("editStudentModal")
+                ).show();
+
+            } catch (err) {
+                alert("Failed to load student");
+                console.error(err);
+            }
+        }
+
+        /**
+         * Saves edited student data
+         */
+        async function saveStudentEdits() {
+            const studentId = document.getElementById("editStudentId").value;
+
+            const payload = {
+                name: document.getElementById("editName").value,
+                age: Number(document.getElementById("editAge").value),
+                gender: document.getElementById("editGender").value,
+                school: document.getElementById("editSchool").value
+            };
+
+            try {
+                await apiRequest(`/admin/student/${studentId}/`, {
+                    method: "PUT",
+                    body: JSON.stringify(payload)
+                });
+
+                bootstrap.Modal.getInstance(
+                    document.getElementById("editStudentModal")
+                ).hide();
+
+                alert("Student updated");
+
+            } catch (err) {
+                alert("Update failed");
+                console.error(err);
+            }
+        }
+
+        /* =========================================================
+             MODULE 12: Search Bar And filter
+          ========================================================= */
+        let searchTimeout = null;
+
+        function handleStudentSearch() {
+            clearTimeout(searchTimeout);
+
+            searchTimeout = setTimeout(() => {
+                const q = document.getElementById("studentSearch").value.trim();
+                loadStudents(1, q); // ✅ pass q
+            }, 300);
+        }
+
+        function renderStudents(students) {
+            const tbody = document.getElementById("studentsTable");
+
+            if (!students || students.length === 0) {
+                tbody.innerHTML = `
+            <tr>
+                <td colspan="7" class="text-center text-muted py-4">
+                    No students found
+                </td>
+            </tr>
+        `;
+                return;
+            }
+
+            let html = "";
+            for (const s of students) {
+                html += renderStudentRow(s);
+            }
+
+            tbody.innerHTML = html; // ✅ SINGLE DOM WRITE
+        }
+
+
+        function applyStudentFilters() {
+            AppState.students.filters.fromDate =
+                document.getElementById("filterFromDate").value;
+
+            AppState.students.filters.toDate =
+                document.getElementById("filterToDate").value;
+
+            AppState.students.filters.gender =
+                document.getElementById("filterGender").value;
+
+            AppState.students.filters.school =
+                document.getElementById("filterSchool").value.trim();
+
+            loadStudents(1);
+        }
+
+
+        function clearStudentFilters() {
+            document.getElementById("filterFromDate").value = "";
+            document.getElementById("filterToDate").value = "";
+            document.getElementById("filterGender").value = "";
+            document.getElementById("filterSchool").value = "";
+
+            AppState.students.filters = {
+                fromDate: "",
+                toDate: "",
+                gender: "",
+                school: ""
+            };
+
+            loadStudents(1);
+        }
+
+
+
+
+
+    </script>
+
+
+</body>
+
+</html>
