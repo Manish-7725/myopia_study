@@ -6,8 +6,12 @@ from .models import (
     EnvironmentalFactor,
     ClinicalHistory,
     AwarenessSafety,
-    ClinicalExamination,
+    # ClinicalExamination,
     OcularExamination,
+    FollowUp,
+    FollowUpEnvironmental,
+    FollowUpHistory,
+    FollowUpOcular,
 )
 
 from django.contrib.auth.models import User
@@ -126,10 +130,11 @@ class OcularExaminationSerializer(serializers.ModelSerializer):
 
 
 
-class ClinicalExaminationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ClinicalExamination
-        exclude = ("student",)
+# --- COMMENTED OUT: ClinicalExaminationSerializer (model not defined)
+# class ClinicalExaminationSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = ClinicalExamination
+#         exclude = ("student",)
 
 
 class MyopiaVisitSubmissionSerializer(serializers.Serializer):
@@ -248,3 +253,69 @@ class UserFormsListSerializer(serializers.ModelSerializer):
             "student_name",
             "visit_date",
         ]
+
+class FollowUpEnvironmentalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FollowUpEnvironmental
+        exclude = ["id", "created_at"]
+
+class FollowUpHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FollowUpHistory
+        exclude = ["id", "created_at"]
+
+class FollowUpOcularSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FollowUpOcular
+        exclude = ["id", "created_at"]
+
+class FollowUpSerializer(serializers.ModelSerializer):
+    environmental = FollowUpEnvironmentalSerializer()
+    history = FollowUpHistorySerializer()
+    ocular = FollowUpOcularSerializer()
+
+    class Meta:
+        model = FollowUp
+        fields = [
+            "id",
+            "student",
+            "last_visit",
+            "next_visit",
+            "status",
+            "notes",
+            "created_at",
+            "environmental",
+            "history",
+            "ocular",
+        ]
+
+    def create(self, validated_data):
+        environmental_data = validated_data.pop("environmental")
+        history_data = validated_data.pop("history")
+        ocular_data = validated_data.pop("ocular")
+        followup = FollowUp.objects.create(**validated_data)
+        FollowUpEnvironmental.objects.create(followup=followup, **environmental_data)
+        FollowUpHistory.objects.create(followup=followup, **history_data)
+        FollowUpOcular.objects.create(followup=followup, **ocular_data)
+        return followup
+
+    def update(self, instance, validated_data):
+        environmental_data = validated_data.pop("environmental", None)
+        history_data = validated_data.pop("history", None)
+        ocular_data = validated_data.pop("ocular", None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        if environmental_data:
+            for attr, value in environmental_data.items():
+                setattr(instance.environmental, attr, value)
+            instance.environmental.save()
+        if history_data:
+            for attr, value in history_data.items():
+                setattr(instance.history, attr, value)
+            instance.history.save()
+        if ocular_data:
+            for attr, value in ocular_data.items():
+                setattr(instance.ocular, attr, value)
+            instance.ocular.save()
+        return instance

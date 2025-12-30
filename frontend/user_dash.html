@@ -244,8 +244,6 @@
             padding-left: calc(var(--bs-gutter-x) * .5);
             margin-top: var(--bs-gutter-y);
         }
-
-        
     </style>
 </head>
 
@@ -1584,55 +1582,55 @@
             </div>
         </div>
     </div>
-<!-- =========================================
+    <!-- =========================================
      FOLLOW-UP FORM MODAL (C + D + F)
 ========================================= -->
-<div class="modal fade" id="followupModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content">
+    <div class="modal fade" id="followupModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
 
-            <!-- Header -->
-            <div class="modal-header">
-                <h5 class="modal-title fw-bold">
-                    New Follow-Up Entry
-                </h5>
-                <button class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
+                <!-- Header -->
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">
+                        New Follow-Up Entry
+                    </h5>
+                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
 
-            <!-- Body -->
-            <div class="modal-body">
-                <form id="followupForm">
+                <!-- Body -->
+                <div class="modal-body">
+                    <form id="followupForm">
 
-                    <!-- =====================
+                        <!-- =====================
                          BASIC FOLLOW-UP INFO
                     ====================== -->
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-4">
-                            <label class="form-label fw-semibold">
-                                Student ID
-                            </label>
-                            <input type="text" class="form-control" id="fuStudentId" required>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">
+                                    Student ID
+                                </label>
+                                <input type="text" class="form-control" id="fuStudentId" required>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">
+                                    Last Visit Date
+                                </label>
+                                <input type="date" class="form-control" id="fuLastVisit" required>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">
+                                    Next Visit Date
+                                </label>
+                                <input type="date" class="form-control" id="fuNextVisit" required>
+                            </div>
                         </div>
 
-                        <div class="col-md-4">
-                            <label class="form-label fw-semibold">
-                                Last Visit Date
-                            </label>
-                            <input type="date" class="form-control" id="fuLastVisit" required>
-                        </div>
-
-                        <div class="col-md-4">
-                            <label class="form-label fw-semibold">
-                                Next Visit Date
-                            </label>
-                            <input type="date" class="form-control" id="fuNextVisit" required>
-                        </div>
-                    </div>
-
-                    <!-- =================================================
+                        <!-- =================================================
                          SECTION C : ENVIRONMENTAL FACTORS
                     ================================================= -->
-                    <div class="card mb-3 section-card">
+                        <!-- <div class="card mb-3 section-card">
                         <div class="card-header fw-bold">
                             Section C: Environmental Factors
                         </div>
@@ -1691,12 +1689,12 @@
                             </div>
 
                         </div>
-                    </div>
+                    </div> -->
 
-                    <!-- =================================================
+                        <!-- =================================================
                          SECTION D : MYOPIA HISTORY & PROGRESSION
                     ================================================= -->
-                    <div class="card mb-3 section-card">
+                        <!-- <div class="card mb-3 section-card">
                         <div class="card-header fw-bold">
                             Section D: Myopia History & Progression
                         </div>
@@ -1765,58 +1763,74 @@
                             </div>
 
                         </div>
-                    </div>
+                    </div> -->
 
-                    <!-- =================================================
+                        <!-- =================================================
                          SECTION F : OCULAR EXAMINATION
                     ================================================= -->
-                    <div class="card mb-3 section-card">
-                        <div class="card-header fw-bold">
-                            Section F: Ocular Examination
+                        <div class="card mb-3 section-card">
+                            <div class="card-header fw-bold">
+                                Section F: Ocular Examination
+                            </div>
+
+                            <div class="card-body row g-3">
+
+                                <div class="col-md-6"><label>37. Uncorrected
+                                        Visual Acuity</label><br>Right eye<input type="text" name="ucva_re"
+                                        class="form-control" placeholder="RE">Left
+                                    eye<input type="text" name="ucva_le" class="form-control" placeholder="LE">
+                                </div>
+                                <div class="col-md-6"><label>38. Best Corrected
+                                        Visual
+                                        Acuity (BCVA):</label><br>Right eye<input type="text" name="bcva_re"
+                                        class="form-control" placeholder="RE">Left
+                                    eye<input type="text" name="bcva_le" class="form-control" placeholder="LE">
+                                </div>
+                                <div class="col-md-6"><label>39. Cycloplegic
+                                        Auto-refraction (Spherical
+                                        Equivalent):</label><br>Right eye<input type="text" name="cyclo_se_re"
+                                        class="form-control" placeholder="RE">Left
+                                    eye<input type="text" name="cyclo_se_le" class="form-control" placeholder="LE">
+                                </div>
+                                <div class="col-md-6"><label>40. Spherical
+                                        Power:</label><br>Right eye<input type="text" name="spherical_re"
+                                        class="form-control" placeholder="RE">Left
+                                    eye<input type="text" name="spherical_le" class="form-control" placeholder="LE">
+                                </div>
+                                <div class="col-md-6"><label>41. Axial Length
+                                        (mm):</label><br>Right eye<input type="text" name="axial_length_re"
+                                        class="form-control" placeholder="RE">Left
+                                    eye<input type="text" name="axial_length_le" class="form-control" placeholder="LE">
+                                </div>
+                                <div class="col-md-6"><label>42. Corneal Curvature
+                                        (K
+                                        readings):</label><br>Right eye<input type="text" name="keratometry_re"
+                                        class="form-control" placeholder="RE">Left
+                                    eye<input type="text" name="keratometry_le" class="form-control" placeholder="LE">
+                                </div>
+                                <div class="col-md-6"><label>43. Central Corneal
+                                        Thickness (µm):</label><br>Right eye<input type="text" name="cct_re"
+                                        class="form-control" placeholder="RE">Left
+                                    eye<input type="text" name="cct_le" class="form-control" placeholder="LE">
+                                </div>
+                                <div class="col-md-6"><label>44. . Anterior segment
+                                        findings (Torch light):</label><br>Right
+                                    eye<textarea name="anterior_segment_re" class="form-control" rows="1"></textarea>
+                                    Left eye<textarea name="anterior_segment_le" class="form-control"
+                                        rows="1"></textarea>
+                                </div>
+                                <div class="col-md-6"><label>45.
+                                        Amblyopia/Strabismus</label><input type="radio" name="amblyopia_or_strabismus"
+                                        value="true" class="form-check-input"> Yes
+                                    <input type="radio" name="amblyopia_or_strabismus" value="false"
+                                        class="form-check-input"> No
+                                </div>
+                                <div class="col-md-12"><label>46. Fundus
+                                        Findings</label><br>Right eye<textarea class="form-control" rows="1"></textarea>
+                                    Left eye<textarea class="form-control" rows="1"></textarea></div>
+                            </div>
                         </div>
-
-                        <div class="card-body row g-3">
-
-                            <div class="col-md-3">
-                                <label class="form-label">UCVA RE</label>
-                                <input type="text" class="form-control" name="ucva_re">
-                            </div>
-
-                            <div class="col-md-3">
-                                <label class="form-label">UCVA LE</label>
-                                <input type="text" class="form-control" name="ucva_le">
-                            </div>
-
-                            <div class="col-md-3">
-                                <label class="form-label">BCVA RE</label>
-                                <input type="text" class="form-control" name="bcva_re">
-                            </div>
-
-                            <div class="col-md-3">
-                                <label class="form-label">BCVA LE</label>
-                                <input type="text" class="form-control" name="bcva_le">
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label">
-                                    Amblyopia / Strabismus
-                                </label>
-                                <select class="form-select" name="amblyopia_strabismus">
-                                    <option value="">Select</option>
-                                    <option>No</option>
-                                    <option>Yes</option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label">
-                                    Fundus Examination Notes
-                                </label>
-                                <textarea class="form-control" name="fundus_notes" rows="2"></textarea>
-                            </div>
-
-                        </div>
-                    </div>
+                </div>
 
                 </form>
             </div>
@@ -1833,7 +1847,7 @@
 
         </div>
     </div>
-</div>
+    </div>
 
 
 
@@ -2402,7 +2416,7 @@
         /* =====================
        NEW FOLLOW-UP ACTION
     ===================== */
-       function openNewFollowup() {
+        function openNewFollowup() {
             const modal = new bootstrap.Modal(
                 document.getElementById("followupModal")
             );
@@ -2410,23 +2424,74 @@
         }
 
 
-       function submitFollowupMock() {
-                const form = document.getElementById("followupForm");
-                const data = Object.fromEntries(new FormData(form).entries());
+        function submitFollowupMock() {
+            const form = document.getElementById("followupForm");
+            const data = Object.fromEntries(new FormData(form).entries());
 
-                data.student_id = document.getElementById("fuStudentId").value;
-                data.last_visit = document.getElementById("fuLastVisit").value;
-                data.next_visit = document.getElementById("fuNextVisit").value;
+            data.student_id = document.getElementById("fuStudentId").value;
+            data.last_visit = document.getElementById("fuLastVisit").value;
+            data.next_visit = document.getElementById("fuNextVisit").value;
 
-                console.log("FOLLOW-UP DATA (MOCK):", data);
+            console.log("FOLLOW-UP DATA (MOCK):", data);
 
-                alert("Follow-Up captured (mock). Check console.");
+            alert("Follow-Up captured (mock). Check console.");
 
-                form.reset();
-                bootstrap.Modal.getInstance(
-                    document.getElementById("followupModal")
-                ).hide();
+            form.reset();
+            bootstrap.Modal.getInstance(
+                document.getElementById("followupModal")
+            ).hide();
+        }
+
+
+        async function loadMySubmittedForms() {
+            const token = localStorage.getItem("access");
+            if (!token) return;
+
+            const res = await fetch("http://127.0.0.1:8000/api/user/students/", {
+                headers: {
+                    "Authorization": "Bearer " + token
+                }
+            });
+
+            if (!res.ok) {
+                console.error("Failed to load submitted forms");
+                return;
             }
+
+            const students = await res.json();
+            renderSubmittedForms(students);
+        }
+
+        function renderSubmittedForms(students) {
+                const tbody = document.querySelector("#myFormsTable tbody");
+                tbody.innerHTML = "";
+
+                if (!students.length) {
+                    tbody.innerHTML = `<tr><td colspan="6">No submissions yet</td></tr>`;
+                    return;
+                }
+
+                students.forEach((s, i) => {
+                    const row = `
+            <tr>
+                <td>${i + 1}</td>
+                <td>${s.student_id}</td>
+                <td>${s.name}</td>
+                <td>${s.age ?? "-"}</td>
+                <td>${s.created_at ? s.created_at.split("T")[0] : "-"}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary"
+                        onclick="viewStudent('${s.student_id}')">
+                        View
+                    </button>
+                </td>
+            </tr>
+        `;
+                    tbody.insertAdjacentHTML("beforeend", row);
+                });
+            }
+
+
 
 
 

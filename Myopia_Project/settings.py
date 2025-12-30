@@ -9,8 +9,11 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
-
+import os
+from dotenv import load_dotenv
 from pathlib import Path
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-hjxdz^_ggs(1aj#9ck_irj^*li7m9=9amwj-!nit*4ux$@lkwx'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -38,8 +41,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'Myopia_Study',
-    "django.contrib.staticfiles",
-    "whitenoise.runserver_nostatic",
 
     # third-party
     'rest_framework',
@@ -50,6 +51,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',   # must be high
+    # 'whitenoise.middleware.WhiteNoiseMiddleware',  # COMMENTED: whitenoise not installed
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -57,7 +59,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    "whitenoise.middleware.WhiteNoiseMiddleware",
+    # "whitenoise.middleware.WhiteNoiseMiddleware",  # COMMENTED: whitenoise not installed
 
 ]
 
@@ -65,10 +67,12 @@ CORS_ALLOW_ALL_ORIGINS = True
 # Static and templates (simple)
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_DIRS = [
+    BASE_DIR / "frontend",
+]
+
 # If you will serve frontend from /var/www/myopia_frontend in production, set STATICFILES_DIRS accordingly.
 
-# CORS - allow frontend local testing (change in production)
-CORS_ALLOW_ALL_ORIGINS = True
 
 # REST Framework + JWT
 REST_FRAMEWORK = {
@@ -82,14 +86,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 50,
 }
 
-# SimpleJWT settings (optional tuning)
-from datetime import timedelta
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
-    'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,
-}
+
 
 ROOT_URLCONF = 'Myopia_Project.urls'
 
@@ -99,13 +96,13 @@ USE_TZ = True
 
 # In development, allow localhost
 # ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
-ALLOWED_HOSTS = ["*"]  # ONLY for testing
+ALLOWED_HOSTS = ['.onrender.com', 'localhost', '127.0.0.1']
 
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / "frontend"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -120,15 +117,16 @@ TEMPLATES = [
 WSGI_APPLICATION = 'Myopia_Project.wsgi.application'
 
 
+import sys
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'myopia_db',
+        'NAME': 'myopia_database',  # <-- must not be None
         'USER': 'myopia_user',
-        'PASSWORD': 'Your_Password',
+        'PASSWORD': 'your_password',
         'HOST': 'localhost',
         'PORT': '5432',
     }
@@ -154,16 +152,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/6.0/topics/i18n/
-
-LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
-USE_I18N = True
-
-USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)

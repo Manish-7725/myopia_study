@@ -1,10 +1,13 @@
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.utils.timezone import now
+from rest_framework import status
+
+from .permissions import IsAdmin
+from rest_framework.permissions import IsAuthenticated        # ✅ ADD
 from .models import FollowUp, Student
 from .serializers import FollowUpCreateSerializer
-from rest_framework import status
+
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
@@ -35,14 +38,25 @@ def list_followups(request):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def create_followup(request):
-    student_id_str = request.data.get("student")
-    try:
-        student = Student.objects.get(student_id=student_id_str)
-    except Student.DoesNotExist:
-        return Response({"student": "Student not found"}, status=status.HTTP_400_BAD_REQUEST)
     
-    data = request.data.copy()
-    data['student'] = student.pk
+    student_id_str = request.data.get("student")
+
+    try:
+        if request.user.is_staff:
+        # Admin: can create follow-up for any student
+            student = Student.objects.get(student_id=student_id_str)
+        else:
+        # User: can create follow-up only for their own student
+            student = Student.objects.get(
+                student_id=student_id_str,
+                created_by=request.user
+        )
+    except Student.DoesNotExist:
+        return Response(
+        {"detail": "Student not found or access denied"},
+        status=status.HTTP_403_FORBIDDEN
+    )
+
     
     serializer = FollowUpCreateSerializer(data=data)
     if serializer.is_valid():

@@ -475,36 +475,32 @@
 
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="mb-0">Students</h5>
-
                 <div class="d-flex gap-2 align-items-center">
-
+                    <!-- Export Button -->
+                    <button class="btn btn-success btn-sm" onclick="exportStudents()">
+                        <i class="bi bi-download me-1"></i> Export
+                    </button>
                     <!-- Search -->
                     <input type="text" id="studentSearch" class="form-control form-control-sm"
                         placeholder="Search by ID / Name / School" onkeyup="handleStudentSearch()"
                         style="width: 220px;" />
-
                     <!-- Filter -->
                     <div class="dropdown">
                         <button class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
                             <i class="bi bi-funnel"></i> Filter
                         </button>
-
                         <div class="dropdown-menu dropdown-menu-end p-3" style="width: 300px;">
-
                             <h6 class="fw-bold mb-2">Filter Students</h6>
-
                             <!-- From Date -->
                             <div class="mb-2">
                                 <label class="form-label small">From Date</label>
                                 <input type="date" id="filterFromDate" class="form-control form-control-sm">
                             </div>
-
                             <!-- To Date -->
                             <div class="mb-2">
                                 <label class="form-label small">To Date</label>
                                 <input type="date" id="filterToDate" class="form-control form-control-sm">
                             </div>
-
                             <!-- Gender -->
                             <div class="mb-2">
                                 <label class="form-label small">Gender</label>
@@ -515,14 +511,12 @@
                                     <option value="Other">Other</option>
                                 </select>
                             </div>
-
                             <!-- School (text for now) -->
                             <div class="mb-2">
                                 <label class="form-label small">School Name</label>
                                 <input type="text" id="filterSchool" class="form-control form-control-sm"
                                     placeholder="Enter school name">
                             </div>
-
                             <div class="d-flex justify-content-between mt-3">
                                 <button class="btn btn-light btn-sm" onclick="clearStudentFilters()">
                                     Clear
@@ -531,10 +525,8 @@
                                     Apply
                                 </button>
                             </div>
-
                         </div>
                     </div>
-
                 </div>
             </div>
 
@@ -746,14 +738,14 @@
                                 <label class="form-label small fw-bold">Email</label>
                                 <input type="email" name="email" class="form-control" required>
                             </div>
-                            <div class="col-6">
+                            <!-- <div class="col-6">
                                 <label class="form-label small fw-bold">Role</label>
                                 <select name="role" class="form-select">
                                     <option value="Clinician">Clinician</option>
                                     <option value="Surveyor">Surveyor</option>
                                     <option value="Viewer">Viewer</option>
                                 </select>
-                            </div>
+                            </div> -->
                         </div>
                         <div class="mb-3">
                             <label class="form-label small fw-bold">Temporary Password</label>
@@ -1056,16 +1048,14 @@
        MODULE 2: AUTH & ACCESS CONTROL
     ========================================================= */
 
-        function enforceAdminAccess() {
-            if (!AppState.auth.token) {
-                redirectToLogin();
-            }
+        async function enforceAdminAccess() {
+                if (!AppState.auth.token) redirectToLogin();
 
-            if (AppState.auth.role !== "admin") {
-                alert("Access denied: Admins only");
-                logout();
+                if (AppState.auth.role !== "admin") {
+                    alert("Access denied: Admins only");
+                    logout();
+                }
             }
-        }
 
         function logout() {
             localStorage.clear();
@@ -1289,61 +1279,61 @@
 
 
         async function loadStudents(page = 1, q = AppState.students.query) {
-                showStudentsLoading();
+            showStudentsLoading();
 
-                const token = localStorage.getItem("access");
-                if (!token) {
-                    logout();
-                    return;
+            const token = localStorage.getItem("access");
+            if (!token) {
+                logout();
+                return;
+            }
+
+            AppState.students.page = page;
+            AppState.students.query = q;
+
+            let url = `http://127.0.0.1:8000/api/admin/students/?page=${page}`;
+
+            if (q) url += `&q=${encodeURIComponent(q)}`;
+
+            const { fromDate, toDate, gender, school } = AppState.students.filters;
+
+            if (fromDate) url += `&from_date=${fromDate}`;
+            if (toDate) url += `&to_date=${toDate}`;
+            if (gender) url += `&gender=${encodeURIComponent(gender)}`;
+            if (school) url += `&school=${encodeURIComponent(school)}`;
+
+            try {
+                const res = await fetch(url, {
+                    headers: {
+                        "Authorization": "Bearer " + token
+                    }
+                });
+
+                if (!res.ok) {
+                    throw new Error("Failed to load students: " + res.status);
                 }
 
-                AppState.students.page = page;
-                AppState.students.query = q;
+                const data = await res.json(); // ✅ THIS WAS MISSING
 
-                let url = `http://127.0.0.1:8000/api/admin/students/?page=${page}`;
+                // ✅ SAVE PAGINATION STATE
+                AppState.students.next = data.next;
+                AppState.students.prev = data.previous;
 
-                if (q) url += `&q=${encodeURIComponent(q)}`;
+                document.getElementById("prevBtn").disabled = !data.previous;
+                document.getElementById("nextBtn").disabled = !data.next;
 
-                const { fromDate, toDate, gender, school } = AppState.students.filters;
+                renderStudents(data.results);
 
-                if (fromDate) url += `&from_date=${fromDate}`;
-                if (toDate) url += `&to_date=${toDate}`;
-                if (gender) url += `&gender=${encodeURIComponent(gender)}`;
-                if (school) url += `&school=${encodeURIComponent(school)}`;
-
-                try {
-                    const res = await fetch(url, {
-                        headers: {
-                            "Authorization": "Bearer " + token
-                        }
-                    });
-
-                    if (!res.ok) {
-                        throw new Error("Failed to load students: " + res.status);
-                    }
-
-                    const data = await res.json(); // ✅ THIS WAS MISSING
-
-                    // ✅ SAVE PAGINATION STATE
-                    AppState.students.next = data.next;
-                    AppState.students.prev = data.previous;
-
-                    document.getElementById("prevBtn").disabled = !data.previous;
-                    document.getElementById("nextBtn").disabled = !data.next;
-
-                    renderStudents(data.results);
-
-                } catch (err) {
-                    console.error(err);
-                    document.getElementById("studentsTable").innerHTML = `
+            } catch (err) {
+                console.error(err);
+                document.getElementById("studentsTable").innerHTML = `
             <tr>
                 <td colspan="7" class="text-danger text-center py-4">
                     Failed to load students
                 </td>
             </tr>
         `;
-                }
             }
+        }
 
 
 
@@ -1780,6 +1770,66 @@
 
 
 
+
+        // =============================
+        // EXPORT STUDENTS (BASELINE + FOLLOWUPS)
+        // =============================
+        async function exportStudents() {
+            try {
+                // Fetch all students with follow-ups (assume API endpoint returns all, or adjust as needed)
+                const data = await apiRequest("/admin/students-export/");
+
+                if (!data || !Array.isArray(data) || data.length === 0) {
+                    alert("No data to export.");
+                    return;
+                }
+
+                // Prepare CSV header
+                const headers = [
+                    "Student ID", "Name", "Age", "Gender", "School", "Created At",
+                    "Lifestyle: Outdoor Duration", "Lifestyle: Sun Exposure", "Lifestyle: Screen Time", "Lifestyle: Sleep Duration",
+                    "Environment: School Type", "Environment: Classroom Strength", "Environment: Lighting",
+                    "History: Diagnosed Earlier", "History: Compliance", "History: Power Changed (3 yrs)",
+                    "Awareness: Eye Strain", "Awareness: Vision Care Access", "Awareness: Source",
+                    "Ocular: UCVA (RE)", "Ocular: UCVA (LE)", "Ocular: BCVA (RE)", "Ocular: BCVA (LE)", "Ocular: Amblyopia/Strabismus",
+                    "FollowUp Count", "FollowUps (JSON)"
+                ];
+
+                // Build CSV rows
+                const rows = [headers];
+                for (const s of data) {
+                    // Baseline fields
+                    const baseline = [
+                        s.student_id || "", s.name || "", s.age || "", s.gender || "", s.school_name || "", s.created_at || "",
+                        s.lifestyle?.outdoor_duration || "", s.lifestyle?.sun_exposure || "", s.lifestyle?.screen_time || "", s.lifestyle?.sleep_duration || "",
+                        s.environment?.school_type || "", s.environment?.classroom_strength || "", s.environment?.lighting || "",
+                        s.history?.diagnosed_earlier ? "Yes" : "No", s.history?.compliance || "", s.history?.power_changed_last_3yrs ? "Yes" : "No",
+                        s.awareness?.aware_eye_strain ? "Yes" : "No", s.awareness?.access_to_vision_care ? "Yes" : "No", s.awareness?.source_of_awareness || "",
+                        s.ocular?.ucva_re || "", s.ocular?.ucva_le || "", s.ocular?.bcva_re || "", s.ocular?.bcva_le || "", s.ocular?.amblyopia_or_strabismus ? "Yes" : "No",
+                        Array.isArray(s.followups) ? s.followups.length : 0,
+                        Array.isArray(s.followups) ? JSON.stringify(s.followups) : ""
+                    ];
+                    rows.push(baseline);
+                }
+
+                // Convert to CSV string
+                const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(",")).join("\r\n");
+
+                // Download as file
+                const blob = new Blob([csv], { type: "text/csv" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `students_export_${new Date().toISOString().slice(0, 10)}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (err) {
+                alert("Export failed.\n" + (err.message || err));
+                console.error(err);
+            }
+        }
 
     </script>
 
