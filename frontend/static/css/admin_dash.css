@@ -12,6 +12,12 @@ body {
     font-family: "Inter", sans-serif;
 }
 
+/* Layout container */
+.app-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
 /* SIDEBAR THEME */
 #sidebar {
     width: var(--sidebar-width);
@@ -28,8 +34,54 @@ body {
     transition: width 0.3s ease, transform 0.3s ease;
 }
 
+/* Layout container */
+.app-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+Content #content {
+    flex: 1;
+    padding: 24px;
+}
+
+/* Desktop collapse */
 #sidebar.collapsed {
-    width: var(--sidebar-collapsed);
+    width: 70px;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .app-layout {
+        position: relative;
+    }
+
+    #sidebar {
+        position: fixed;
+        inset: 0 auto 0 0;
+        transform: translateX(-100%);
+        z-index: 1040;
+    }
+
+    #sidebar.mobile-open {
+        transform: translateX(0);
+    }
+
+    #content {
+        padding: 16px;
+    }
+}
+
+
+
+#content {
+    transition: margin-left 0.3s ease;
+}
+
+#content {
+    margin-left: var(--sidebar-width);
+    transition: margin-left 0.3s ease;
+    padding: 26px;
 }
 
 #sidebar .list-group-item {
@@ -60,16 +112,6 @@ body {
     transition: opacity 0.2s ease;
 }
 
-/* Better visuals when collapsed */
-#sidebar.collapsed .list-group-item {
-    padding: 14px 10px;
-    text-align: center;
-}
-
-#sidebar.collapsed .list-group-item i {
-    margin-right: 0;
-}
-
 /* TOP NAVBAR */
 nav.navbar {
     background: white !important;
@@ -83,18 +125,6 @@ nav.navbar {
 }
 
 .collapsed~.navbar {
-    margin-left: var(--sidebar-collapsed);
-}
-
-/* CONTENT AREA THEME */
-#content {
-    margin-left: var(--sidebar-width);
-    transition: margin-left 0.3s ease;
-    padding: 26px;
-}
-
-#sidebar.collapsed+#content,
-#content.expanded {
     margin-left: var(--sidebar-collapsed);
 }
 
@@ -113,9 +143,6 @@ nav.navbar {
         transform: translateX(0);
     }
 
-    #content {
-        transition: margin-left 0.3s ease;
-    }
 
 
     .sidebar-backdrop {
@@ -129,6 +156,10 @@ nav.navbar {
     .sidebar-backdrop.show {
         display: block;
     }
+}
+
+.student-row:hover {
+    background-color: #F0F7FF;
 }
 
 
@@ -170,16 +201,6 @@ table thead {
 
 table tbody tr:hover {
     background: #F7FBFF;
-}
-
-/* small helpers */
-.spa-section {
-    display: none;
-    animation: fadeIn .18s ease;
-}
-
-.spa-section.active {
-    display: block;
 }
 
 @keyframes fadeIn {
