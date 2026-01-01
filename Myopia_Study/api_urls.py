@@ -5,6 +5,7 @@ from Myopia_Study import api_admin
 from . import api_followups
 from . import api_auth
 from . import api_forms
+from . import api_students
 from .api_students import students_api
 from .api_forms import submit_myopia_form, UserFormsList
 
