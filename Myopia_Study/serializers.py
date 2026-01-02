@@ -2,16 +2,10 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import (
     Student,
-    LifestyleBehavior,
-    EnvironmentalFactor,
-    ClinicalHistory,
-    AwarenessSafety,
-    # ClinicalExamination,
+    ClinicalVisit,
+
     OcularExamination,
-    FollowUp,
-    FollowUpEnvironmental,
-    FollowUpHistory,
-    FollowUpOcular,
+   
 )
 
 from django.contrib.auth.models import User
@@ -47,275 +41,46 @@ class SignupSerializer(serializers.ModelSerializer):
 class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
-        fields = "__all__"
-        # read_only_fields = ["created_by", "created_at"]
-
-class LifestyleBehaviorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = LifestyleBehavior
-        fields = [
-            'outdoor_duration',
-            'sun_exposure',
-            'near_work_hours',
-            'screen_time',
-            'primary_device',
-            'reading_distance',
-            'viewing_posture_ratio',
-            'dietary_habit',
-            'dietary_other',
-            'sleep_duration',
-            'usual_bedtime',
-        ]
-
-
-
-class EnvironmentalFactorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = EnvironmentalFactor
-        fields = [
-            "school_type",
-            "classroom_strength",
-            "seating_position",
-            "teaching_methodology",
-            "lighting",
-            "sunlight_source",
-        ]
-
-
-
-class ClinicalHistorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ClinicalHistory
-        fields = [
-            "diagnosed_earlier",
-            "age_at_diagnosis",
-            "power_changed_last_3yrs",
-            "compliance",
-            "previous_re",
-            "previous_le",
-            "current_re",
-            "current_le",
-        ]
-
-
-
-class AwarenessSafetySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AwarenessSafety
-        fields = [
-            "aware_eye_strain",
-            "access_to_vision_care",   # ✅ added
-            "follows_preventive_measures",
-            "source_of_awareness",
-        ]
-
-
-
-class OcularExaminationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = OcularExamination
-        fields = [
-            "ucva_re", "ucva_le",
-            "bcva_re", "bcva_le",
-            "cyclo_se_re", "cyclo_se_le",
-            "spherical_re", "spherical_le",
-            "axial_length_re", "axial_length_le",
-            "keratometry_re", "keratometry_le",
-            "cct_re", "cct_le",
-            "anterior_segment_re", "anterior_segment_le",
-            "amblyopia_or_strabismus",
-            "fundus_re", "fundus_le",
-        ]
-
-
-
-
-# --- COMMENTED OUT: ClinicalExaminationSerializer (model not defined)
-# class ClinicalExaminationSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = ClinicalExamination
-#         exclude = ("student",)
-
-
-class MyopiaVisitSubmissionSerializer(serializers.Serializer):
-    student = StudentSerializer()
-    lifestyle = LifestyleBehaviorSerializer()
-    environment = EnvironmentalFactorSerializer()
-    history = ClinicalHistorySerializer()
-    awareness = AwarenessSafetySerializer()
-    ocular = OcularExaminationSerializer()
-    # examination = ClinicalExaminationSerializer()
-
-
-
-from rest_framework import serializers
-from .models import Student
-
-class AdminStudentListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Student
         fields = [
             "student_id",
             "name",
-            "school_name",
             "age",
             "gender",
+            "school_name",
             "created_at",
         ]
 
 
-
-from .models import (
-    LifestyleBehavior,
-    EnvironmentalFactor,
-    ClinicalHistory,
-    AwarenessSafety,
-    OcularExamination
-)
-
-class LifestyleBehaviorSerializer(serializers.ModelSerializer):
+# =====================================================
+# Clinical Visit (timeline, admin)
+# =====================================================
+class ClinicalVisitSerializer(serializers.ModelSerializer):
     class Meta:
-        model = LifestyleBehavior
-        exclude = ["student"]
+        model = ClinicalVisit
+        fields = [
+            "id",
+            "visit_date",
+            "visit_type",
+        ]
 
-class EnvironmentalFactorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = EnvironmentalFactor
-        exclude = ["student"]
 
-class ClinicalHistorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ClinicalHistory
-        exclude = ["student"]
-
-class AwarenessSafetySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AwarenessSafety
-        exclude = ["student"]
-
+# =====================================================
+# Ocular Examination (Section F)
+# Used by baseline + follow-up
+# =====================================================
 class OcularExaminationSerializer(serializers.ModelSerializer):
     class Meta:
         model = OcularExamination
-        exclude = ["student"]
-
-class StudentProfileSerializer(serializers.ModelSerializer):
-    lifestyles = LifestyleBehaviorSerializer(many=True, read_only=True)
-    environments = EnvironmentalFactorSerializer(many=True, read_only=True)
-    histories = ClinicalHistorySerializer(many=True, read_only=True)
-    awareness = AwarenessSafetySerializer(many=True, read_only=True)
-    ocular = OcularExaminationSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Student
-        fields = "__all__"
+        exclude = ["visit", "created_at"]
 
 
-
-
-class FollowUpSerializer(serializers.ModelSerializer):
-    student_name = serializers.CharField(source="student.name")
-
-    class Meta:
-        model = ClinicalHistory
-        fields = [
-            "id",
-            "student_name",
-            "visit_date",
-            "power_changed_last_3yrs",
-            "compliance",
-        ]
-
-
-
-from django.contrib.auth import get_user_model
-from .models import FollowUp
-User = get_user_model()
-
-class AdminUserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ["id", "username", "email", "role", "date_joined"]
-
-class FollowUpCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = FollowUp
-        fields = '__all__'
-
-
-class UserFormsListSerializer(serializers.ModelSerializer):
-    student_id = serializers.CharField(source="student.student_id")
-    student_name = serializers.CharField(source="student.name")
-
-    class Meta:
-        model = ClinicalHistory
-        fields = [
-            "student_id",
-            "student_name",
-            "visit_date",
-        ]
-
-class FollowUpEnvironmentalSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = FollowUpEnvironmental
-        exclude = ["id", "created_at"]
-
-class FollowUpHistorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = FollowUpHistory
-        exclude = ["id", "created_at"]
-
-class FollowUpOcularSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = FollowUpOcular
-        exclude = ["id", "created_at"]
-
-class FollowUpSerializer(serializers.ModelSerializer):
-    environmental = FollowUpEnvironmentalSerializer()
-    history = FollowUpHistorySerializer()
-    ocular = FollowUpOcularSerializer()
-
-    class Meta:
-        model = FollowUp
-        fields = [
-            "id",
-            "student",
-            "last_visit",
-            "next_visit",
-            "status",
-            "notes",
-            "created_at",
-            "environmental",
-            "history",
-            "ocular",
-        ]
-
-    def create(self, validated_data):
-        environmental_data = validated_data.pop("environmental")
-        history_data = validated_data.pop("history")
-        ocular_data = validated_data.pop("ocular")
-        followup = FollowUp.objects.create(**validated_data)
-        FollowUpEnvironmental.objects.create(followup=followup, **environmental_data)
-        FollowUpHistory.objects.create(followup=followup, **history_data)
-        FollowUpOcular.objects.create(followup=followup, **ocular_data)
-        return followup
-
-    def update(self, instance, validated_data):
-        environmental_data = validated_data.pop("environmental", None)
-        history_data = validated_data.pop("history", None)
-        ocular_data = validated_data.pop("ocular", None)
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
-        if environmental_data:
-            for attr, value in environmental_data.items():
-                setattr(instance.environmental, attr, value)
-            instance.environmental.save()
-        if history_data:
-            for attr, value in history_data.items():
-                setattr(instance.history, attr, value)
-            instance.history.save()
-        if ocular_data:
-            for attr, value in ocular_data.items():
-                setattr(instance.ocular, attr, value)
-            instance.ocular.save()
-        return instance
+# =====================================================
+# User Dashboard — computed serializer
+# =====================================================
+class UserStudentListSerializer(serializers.Serializer):
+    student_id = serializers.CharField()
+    name = serializers.CharField()
+    baseline_date = serializers.DateField(allow_null=True)
+    last_visit_date = serializers.DateField(allow_null=True)
+    can_create_baseline = serializers.BooleanField()
+    can_create_followup = serializers.BooleanField()

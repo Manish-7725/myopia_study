@@ -1,9 +1,9 @@
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAdminUser
+from .permissions import IsAdmin
 
 # API: Export all students with baseline and follow-up data (for frontend export)
 @api_view(["GET"])
-@permission_classes([IsAdminUser])
+@permission_classes([IsAdmin])
 def students_export_json(request):
     students = Student.objects.all().order_by("-created_at")
     result = []
@@ -61,16 +61,16 @@ from django.db.models import Q
 
 
 
-from .models import Student, ClinicalHistory, FollowUp
+from .models import Student, ClinicalHistory
 from .permissions import IsAdmin
 
 from rest_framework.response import Response
 from django.utils.timezone import now
 from datetime import timedelta
-from collections import defaultdict
+# from collections import defaultdict
 from django.db.models import Count
 from django.contrib.auth.models import User
-from .models import FollowUp
+# from .models import FollowUp
 
 from .models import (
     Student,
@@ -186,7 +186,7 @@ def activity_analytics(request):
 
 
 from rest_framework.pagination import PageNumberPagination
-from django.db.models import Q
+# from django.db.models import Q
 
 class StudentPagination(PageNumberPagination):
     page_size = 50
@@ -505,7 +505,7 @@ def create_followup(request):
 
 
 from rest_framework.pagination import PageNumberPagination
-from django.db.models import Q
+# from django.db.models import Q
 
 class StudentPagination(PageNumberPagination):
     page_size = 50
