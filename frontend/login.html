@@ -148,47 +148,76 @@
         document.getElementById("loginForm").addEventListener("submit", async (e) => {
             e.preventDefault();
 
-            const username = document.getElementById("username").value.trim();
-            const password = pwd.value;
-            const remember = document.getElementById("rememberMe").checked;
+            const usernameInput = document.getElementById("username");
+            const passwordInput = document.getElementById("password");
+            const rememberCheckbox = document.getElementById("rememberMe");
             const errorBox = document.getElementById("loginError");
 
-            errorBox.classList.add("d-none");
+            errorBox.classList.add("d-none"); // Hide previous errors
+            errorBox.innerText = "";
+
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value;
+            const remember = rememberCheckbox.checked;
+
+            // Simple client-side validation
+            let isValid = true;
+            if (!username) {
+                usernameInput.classList.add("is-invalid");
+                isValid = false;
+            } else {
+                usernameInput.classList.remove("is-invalid");
+            }
+
+            if (!password || password.length < 8) {
+                passwordInput.classList.add("is-invalid");
+                isValid = false;
+            } else {
+                passwordInput.classList.remove("is-invalid");
+            }
+
+            if (!isValid) {
+                errorBox.innerText = "Please correct the form errors.";
+                errorBox.classList.remove("d-none");
+                return;
+            }
 
             try {
-                const res = await fetch("http://127.0.0.1:8000/api/auth/login/", {
+                const res = await fetch("http://127.0.0.1:8000/api/login/", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ username, password })
                 });
 
-                const data = await res.json();
+                const data = await res.json(); // Always try to parse JSON, even on error, to get details
 
-                if (!res.ok) {
-                    errorBox.innerText = data.error || "Invalid credentials";
-                    errorBox.classList.remove("d-none");
-                    return;
-                }
+                if (res.ok) {
+                    // Save tokens and user role
+                    localStorage.setItem("access", data.access);
+                    localStorage.setItem("refresh", data.refresh);
+                    localStorage.setItem("role", data.user.role); // Store role explicitly
 
-                // Save tokens
-                localStorage.setItem("access", data.access);
-                localStorage.setItem("refresh", data.refresh);
-                localStorage.setItem("role", data.user.role);
+                    if (remember) {
+                        localStorage.setItem("rememberMe", "1");
+                    } else {
+                        localStorage.removeItem("rememberMe");
+                    }
 
-                if (remember) {
-                    localStorage.setItem("rememberMe", "1");
+                    // Redirect based on role
+                    window.location.href =
+                        data.user.role === "admin"
+                            ? "admin_dash.html"
+                            : "user_dash.html";
+
                 } else {
-                    localStorage.removeItem("rememberMe");
+                    // Handle API errors
+                    const errorMessage = data.detail || data.error || "Login failed. Please check your credentials.";
+                    errorBox.innerText = errorMessage;
+                    errorBox.classList.remove("d-none");
                 }
-
-                // Redirect by role
-                window.location.href =
-                    data.user.role === "admin"
-                        ? "admin_dash.html"
-                        : "user_dash.html";
-
-            } catch {
-                errorBox.innerText = "Network error. Try again.";
+            } catch (err) {
+                console.error("Network or parsing error:", err);
+                errorBox.innerText = "Network error. Please try again.";
                 errorBox.classList.remove("d-none");
             }
         });

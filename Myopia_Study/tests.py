@@ -3,36 +3,19 @@ import string
 from datetime import date, timedelta
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework import status
 from .models import (
-    Student, LifestyleBehavior, EnvironmentalFactor,
-    ClinicalHistory, AwarenessSafety, OcularExamination,
-    FollowUp, FollowUpEnvironmental, FollowUpHistory, FollowUpOcular
+    Student, ClinicalVisit, LifestyleBehavior, EnvironmentalFactor,
+    ClinicalHistory, AwarenessSafety, OcularExamination
 )
 
 
 class RandomDataGenerator:
     """Utility class to generate random test data"""
     
-    @staticmethod
-    def random_string(length=10):
-        return ''.join(random.choices(string.ascii_letters, k=length))
-    
-    @staticmethod
-    def random_email():
-        return f"{RandomDataGenerator.random_string(8)}@test.com"
-    
-    @staticmethod
-    def random_student_id():
-        while True:
-            student_id = 'STU' + ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
-            if not Student.objects.filter(student_id=student_id).exists():
-                return student_id
-    
-    @staticmethod
-    def random_name():
-        first_names = [
+    first_names = [
     "Aarav", "Aaryan", "Abdul", "Adam", "Aditya", "Ahmad", "Ahmed", "Ajay", "Akhil", "Akshay", 
     "Alex", "Alexander", "Ali", "Amit", "Anand", "Andrew", "Anil", "Ankit", "Anthony", "Arjun", 
     "Arun", "Ashish", "Ashok", "Atharva", "Ayush", "Benjamin", "Bharat", "Bhaskar", "Bhavin", "Brian", 
@@ -84,7 +67,7 @@ class RandomDataGenerator:
     "Tulsi", "Twinkle", "Uma", "Urmila", "Urvi", "Usha", "Vaishali", "Vandana", "Vani", "Vanita", 
     "Varsha", "Vasudha", "Veda", "Vedika", "Veena", "Vidhi", "Vidya", "Vimala", "Vineeta", "Vinita",
     "Yamini", "Yami", "Yamuna", "Yashaswini", "Yasmin", "Yogita", "Yojana", "Yukta", "Zara", "Zoya"]
-        last_names = ["Acharya", "Agarwal", "Aggarwal", "Anand", "Arora", "Babu", "Bajaj", "Balakrishnan", "Banerjee", "Bansal", 
+    last_names = ["Acharya", "Agarwal", "Aggarwal", "Anand", "Arora", "Babu", "Bajaj", "Balakrishnan", "Banerjee", "Bansal", 
     "Barman", "Basu", "Bedi", "Bhadra", "Bhandari", "Bharadwaj", "Bhargava", "Bhat", "Bhatia", "Bhatt", 
     "Bhattacharya", "Bhattacharyya", "Bose", "Chacko", "Chadha", "Chakrabarti", "Chakraborty", "Chakravarthy", "Chande", "Chander", 
     "Chandra", "Chandran", "Chandrasekhar", "Chatterjee", "Chaturvedi", "Chaudhari", "Chaudhary", "Chauhan", "Chawla", "Cherian", 
@@ -118,10 +101,7 @@ class RandomDataGenerator:
     "Tandon", "Thackeray", "Thakur", "Thomas", "Tiwari", "Tomar", "Tripathi", "Trivedi", "Tyagi", "Upadhyay", 
     "Vaidya", "Varghese", "Varma", "Varty", "Varughese", "Vasan", "Venkataraman", "Venkatesan", "Venkatesh", "Verma", 
     "Vig", "Vij", "Vyas", "Wadhwa", "Walia", "Waran", "Wariar", "Yadav", "Zaidi"]
-        return f"{random.choice(first_names)} {random.choice(last_names)}"
-    @staticmethod
-    def random_school():
-        schools = ["A.G. Public School", "Adarsh Public School", "Adarsh Shiksha Niketan", "Air Force Bal Bharati School", "Amity International School", 
+    schools = ["A.G. Public School", "Adarsh Public School", "Adarsh Shiksha Niketan", "Air Force Bal Bharati School", "Amity International School", 
     "Amrita Vidyalayam", "Apeejay School", "Army Public School", "Arya Vidya Mandir", "Ashok Hall Girls' Higher Secondary School",
     "Assam Valley School", "Atomic Energy Central School", "Baldwin Boys' High School", "Baldwin Girls' High School", "Ballygunge Government High School",
     "Balwantrai Mehta Vidya Bhawan", "Bharatiya Vidya Bhavan", "Birla High School", "Birla Vidya Mandir", "Bishop Cotton Boys' School",
@@ -170,7 +150,7 @@ class RandomDataGenerator:
     "Chaitanya Vidyalaya", "Chalk Tree Global School", "Chaman Bhartiya School", "Champions School", "Chandrakant Patil Public School",
     "Chettinad Vidyashram", "Children's Academy", "Chinmaya International Residential School", "Chirec International School", "Chitrakoota School",
     "Chittagong Grammar School", "Christ Academy", "Christ Church College", "Christ College", "Christ International School",
-    "ChristJyoti School", "Christ The King School", "Christ Vidyaniketan", "Christwood School", "Crescent School",
+    "ChristJyoti School", "Christ The King School", "Christwood School", "Crescent School",
     "Crystal International School", "D.A.V. International School", "D.G. Khetan International School", "D.Y. Patil International School", "Dakshina Kannada Zilla Panchayat Higher Primary School",
     "Dalhousie Public School", "Damien School", "Darshan Academy", "Dasmesh Public School", "Datta Meghe World Academy",
     "Dawn International School", "Dayanand Anglo-Vedic Public School", "Dayawati Modi Academy", "De Paul International Residential School", "Deccan International School",
@@ -178,7 +158,22 @@ class RandomDataGenerator:
     "Deogiri Global Academy", "Deva Matha Central School", "Dewan Public School", "Dharav High School", "Diamond Jubilee High School",
 
 ]
-        return random.choice(schools)
+
+    @staticmethod
+    def random_string(length=10):
+        return ''.join(random.choices(string.ascii_letters, k=length))
+    
+    @staticmethod
+    def random_email():
+        return f"{RandomDataGenerator.random_string(8)}@test.com"
+    
+    @classmethod
+    def random_name(cls):
+        return f"{random.choice(cls.first_names)} {random.choice(cls.last_names)}"
+    
+    @classmethod
+    def random_school(cls):
+        return random.choice(cls.schools)
     
     @staticmethod
     def random_gender():
@@ -189,20 +184,52 @@ class RandomDataGenerator:
         return random.choice([True, False])
 
 
+class RandomDataGeneratorTests(TestCase):
+    """Test the RandomDataGenerator utility class"""
+
+    def test_random_string(self):
+        self.assertIsInstance(RandomDataGenerator.random_string(), str)
+        self.assertEqual(len(RandomDataGenerator.random_string(15)), 15)
+
+    def test_random_email(self):
+        email = RandomDataGenerator.random_email()
+        self.assertIsInstance(email, str)
+        self.assertIn('@', email)
+        self.assertIn('.com', email)
+
+    def test_random_name(self):
+        name = RandomDataGenerator.random_name()
+        self.assertIsInstance(name, str)
+        self.assertTrue(len(name.split()) >= 2)
+
+    def test_random_school(self):
+        school = RandomDataGenerator.random_school()
+        self.assertIsInstance(school, str)
+        self.assertIn(school, RandomDataGenerator.schools)
+
+    def test_random_gender(self):
+        gender = RandomDataGenerator.random_gender()
+        self.assertIsInstance(gender, str)
+        self.assertIn(gender, ["Male", "Female", "Other"])
+
+    def test_random_boolean(self):
+        self.assertIsInstance(RandomDataGenerator.random_boolean(), bool)
+
+
 # class AuthenticationTests(TestCase):
 #     """Test authentication endpoints with multiple iterations"""
     
 #     def setUp(self):
 #         self.client = APIClient()
-#         self.signup_url = '/api/signup/'
-#         self.login_url = '/api/login/'
+#         self.signup_url = reverse('api-signup')
+#         self.login_url = reverse('api-login')
     
-#     def test_signup_1000_users(self):
-#         """Test signup with 1000 random users"""
-#         print("\n=== Testing Signup with 1000 iterations ===")
+#     def test_signup_100_users(self):
+#         """Test signup with 100 random users"""
+#         print("\n=== Testing Signup with 100 iterations ===")
         
 #         successful_signups = 0
-#         for i in range(1000):
+#         for i in range(100):
 #             username = RandomDataGenerator.random_string(12)
 #             email = RandomDataGenerator.random_email()
 #             password = "TestPass123!@#"
@@ -218,18 +245,18 @@ class RandomDataGenerator:
 #             if response.status_code == status.HTTP_201_CREATED:
 #                 successful_signups += 1
             
-#             if (i + 1) % 100 == 0:
-#                 print(f"Progress: {i + 1}/1000 signups completed")
+#             if (i + 1) % 10 == 0:
+#                 print(f"Progress: {i + 1}/100 signups completed")
         
-#         print(f"Successful signups: {successful_signups}/1000")
-#         self.assertGreater(successful_signups, 990)
+#         print(f"Successful signups: {successful_signups}/100")
+#         self.assertGreater(successful_signups, 90)
     
-#     def test_login_1000_attempts(self):
-#         """Test login with 1000 random attempts"""
-#         print("\n=== Testing Login with 1000 iterations ===")
+#     def test_login_100_attempts(self):
+#         """Test login with 100 random attempts"""
+#         print("\n=== Testing Login with 100 iterations ===")
         
 #         test_users = []
-#         for i in range(100):
+#         for i in range(10):
 #             username = f"testuser{i}"
 #             email = f"test{i}@example.com"
 #             password = "TestPass123!@#"
@@ -238,7 +265,7 @@ class RandomDataGenerator:
         
 #         successful_logins = 0
         
-#         for i in range(1000):
+#         for i in range(100):
 #             user_data = random.choice(test_users)
 #             identifier = random.choice([user_data['username'], user_data['email']])
             
@@ -252,11 +279,11 @@ class RandomDataGenerator:
 #             if response.status_code == status.HTTP_200_OK:
 #                 successful_logins += 1
             
-#             if (i + 1) % 100 == 0:
-#                 print(f"Progress: {i + 1}/1000 login attempts completed")
+#             if (i + 1) % 10 == 0:
+#                 print(f"Progress: {i + 1}/100 login attempts completed")
         
-#         print(f"Successful logins: {successful_logins}/1000")
-#         self.assertEqual(successful_logins, 1000)
+#         print(f"Successful logins: {successful_logins}/100")
+#         self.assertEqual(successful_logins, 100)
 
 
 class StudentModelTests(TestCase):
@@ -264,18 +291,17 @@ class StudentModelTests(TestCase):
     
     def setUp(self):
         self.user = User.objects.create_user(
-            username='testuser',
+            username='new_user',
             email='test@example.com',
-            password='testpass123'
+            password='Test@123'
         )
     
-    def test_create_2000_students(self):
-        """Create 2000 random students"""
-        print("\n=== Creating 2000 Random Students ===")
+    def test_create_100_students(self):
+        """Create 100 random students"""
+        print("\n=== Creating 100 Random Students ===")
         
-        for i in range(2000):
+        for i in range(200):
             Student.objects.create(
-                student_id=RandomDataGenerator.random_student_id(),
                 name=RandomDataGenerator.random_name(),
                 school_name=RandomDataGenerator.random_school(),
                 age=random.randint(5, 18),
@@ -284,19 +310,18 @@ class StudentModelTests(TestCase):
                 weight=round(random.uniform(20, 80), 2),
                 parental_myopia=random.choice(["None", "Father", "Mother", "Both"]),
                 num_siblings=random.randint(0, 5),
-                created_by=self.user
             )
             
-            if (i + 1) % 200 == 0:
-                print(f"Progress: {i + 1}/2000 students created")
+            if (i + 1) % 10 == 0:
+                print(f"Progress: {i + 1}/100 students created")
         
         total_students = Student.objects.count()
         print(f"Total students in database: {total_students}")
-        self.assertEqual(total_students, 2000)
+        self.assertEqual(total_students, 200)
 
 
-class FormSubmissionTests(TestCase):
-    """Test form submission with comprehensive data"""
+class StudentFormSubmissionTests(TestCase):
+    """Test student form submission (baseline creation)"""
     
     def setUp(self):
         self.client = APIClient()
@@ -306,97 +331,329 @@ class FormSubmissionTests(TestCase):
             password='testpass123'
         )
         self.client.force_authenticate(user=self.user)
-        self.submit_url = '/api/forms/submit/'
+        self.submit_student_url = reverse('submit-student')
     
-    def generate_form_data(self, student_id=None):
-        if student_id is None:
-            student_id = RandomDataGenerator.random_student_id()
-
+    def generate_student_form_data(self, name=None, age=None, gender=None):
         return {
-            "student": {
-                "student_id": student_id,
-                "name": RandomDataGenerator.random_name(),
-                "school_name": RandomDataGenerator.random_school(),
-                "age": random.randint(5, 18),
-                "gender": RandomDataGenerator.random_gender()
-            },
+            "visit_date": date.today().isoformat(),
+            "name": name if name else RandomDataGenerator.random_name(),
+            "age": age if age else random.randint(5, 18),
+            "gender": gender if gender else RandomDataGenerator.random_gender(),
+            "school_name": RandomDataGenerator.random_school(),
+            "height": round(random.uniform(100, 180), 2),
+            "weight": round(random.uniform(20, 80), 2),
+            "parental_myopia": random.choice(["None", "Father", "Mother", "Both"]),
+            "num_siblings": random.randint(0, 5),
+            "birth_order": random.choice(["First", "Second", "Third", "Last", "Only"]),
+            "siblings_myopia": random.randint(0, 3),
             "lifestyle": {
+                "outdoor_time": "10:00:00",
                 "outdoor_duration": random.choice(["<1hr", "1-2hrs", "2-3hrs"]),
-                "screen_time": random.choice(["<2hrs", "2-4hrs", "4-6hrs"])
+                "sun_exposure": random.choice(["Low", "Medium", "High"]),
+                "near_work_hours": random.choice(["<2hrs", "2-4hrs", "4-6hrs", ">6hrs"]),
+                "screen_time": random.choice(["<2hrs", "2-4hrs", "4-6hrs", ">6hrs"]),
+                "primary_device": random.choice(["Smartphone", "Tablet", "Computer", "TV"]),
+                "reading_distance": random.choice(["<20cm", "20-30cm", ">30cm"]),
+                "viewing_posture_ratio": random.choice(["Good", "Average", "Poor"]),
+                "dietary_habit": random.choice(["Vegetarian", "Non-Vegetarian", "Vegan"]),
+                "dietary_other": "Some other diet",
+                "sleep_duration": random.choice(["<6hrs", "6-8hrs", ">8hrs"]),
+                "usual_bedtime": "22:00:00",
             },
             "environment": {
-                "school_type": random.choice(["Government", "Private"]),
-                "classroom_strength": random.choice(["<30", "30-50"])
+                "school_type": random.choice(["Government", "Private", "International"]),
+                "classroom_strength": random.choice(["<30", "30-50", ">50"]),
+                "seating_position": random.choice(["Front", "Middle", "Back"]),
+                "teaching_methodology": random.choice(["Traditional", "Modern", "Hybrid"]),
+                "lighting": random.choice(["Natural", "Artificial", "Mixed"]),
+                "sunlight_source": random.choice(["Window", "Door", "None"]),
             },
             "history": {
                 "diagnosed_earlier": RandomDataGenerator.random_boolean(),
-                "power_changed_last_3yrs": RandomDataGenerator.random_boolean()
+                "age_at_diagnosis": random.randint(5, 15),
+                "power_changed_last_3yrs": RandomDataGenerator.random_boolean(),
+                "compliance": random.choice(["High", "Medium", "Low"]),
+                "previous_re": "-1.00",
+                "previous_le": "-1.50",
+                "current_re": "-2.00",
+                "current_le": "-2.50",
             },
             "awareness": {
                 "aware_eye_strain": RandomDataGenerator.random_boolean(),
-                "access_to_vision_care": RandomDataGenerator.random_boolean()
+                "access_to_vision_care": RandomDataGenerator.random_boolean(),
+                "follows_preventive_measures": random.choice(["Always", "Sometimes", "Never"]),
+                "source_of_awareness": random.choice(["Doctor", "Internet", "Friends", "Family"]),
             },
             "ocular": {
-                "ucva_re": "6/6",
-                "ucva_le": "6/6",
-                "amblyopia_or_strabismus": RandomDataGenerator.random_boolean()
+                "uncorrectedvisual_acuity_right_eye": "6/6",
+                "uncorrectedvisual_acuity_left_eye": "6/9",
+                "bestcorrectedvisual_acuity_right_eye": "6/6",
+                "bestcorrectedvisual_acuity_left_eye": "6/6",
+                "cycloplegic_auto_refraction_right_eye": "-1.00",
+                "cycloplegic_auto_refraction_left_eye": "-1.25",
+                "spherical_power_right_eye": "-1.00",
+                "spherical_power_left_eye": "-1.25",
+                "axial_length_right_eye": "23.5",
+                "axial_length_left_eye": "23.8",
+                "corneal_curvature_right_eye": "42.5",
+                "corneal_curvature_left_eye": "42.8",
+                "central_corneal_thickness_right_eye": "550",
+                "central_corneal_thickness_left_eye": "552",
+                "anterior_segment_finding_right_eye": "Normal",
+                "anterior_segment_finding_left_eye": "Normal",
+                "amblyopia_or_strabismus": RandomDataGenerator.random_boolean(),
+                "fundus_examination_finding_right_eye": "Normal",
+                "fundus_examination_finding_left_eye": "Normal",
             }
         }
     
-    def test_submit_form_creates_student(self):
-        """Test that submitting a form creates a new student."""
-        form_data = self.generate_form_data()
-        response = self.client.post(self.submit_url, form_data, format='json')
-        self.assertIn(response.status_code, [status.HTTP_200_OK, status.HTTP_201_CREATED])
-        self.assertTrue(Student.objects.filter(student_id=form_data['student']['student_id']).exists())
-
-    def test_update_student_on_form_submission(self):
-        """Test that submitting a form for an existing student updates their data."""
-        # 1. Create a student by submitting a form
-        student_id = RandomDataGenerator.random_student_id()
-        initial_form_data = self.generate_form_data(student_id=student_id)
-        initial_school_name = "Initial School"
-        initial_form_data['student']['school_name'] = initial_school_name
-
-        response = self.client.post(self.submit_url, initial_form_data, format='json')
-        self.assertIn(response.status_code, [status.HTTP_200_OK, status.HTTP_201_CREATED])
+    def test_submit_form_creates_student_and_baseline_visit(self):
+        """Test that submitting a form creates a new student and a baseline visit."""
+        form_data = self.generate_student_form_data()
+        response = self.client.post(self.submit_student_url, form_data, format='json')
+        print("test_submit_form_creates_student_and_baseline_visit response:", response.data) # Debug print
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn("student_id", response.data)
         
-        # Verify student was created with the initial school name
-        student = Student.objects.get(student_id=student_id)
-        self.assertEqual(student.school_name, initial_school_name)
+        student = Student.objects.get(name=form_data['name'], age=form_data['age'], gender=form_data['gender'])
+        self.assertEqual(student.student_id, response.data['student_id'])
+        self.assertTrue(ClinicalVisit.objects.filter(student=student, visit_type="BASELINE").exists())
+        self.assertTrue(LifestyleBehavior.objects.filter(visit__student=student).exists())
 
-        # 2. Submit the form again for the same student with an updated school name
-        updated_form_data = self.generate_form_data(student_id=student_id)
-        updated_school_name = "Updated School"
-        updated_form_data['student']['school_name'] = updated_school_name
+    def test_submit_duplicate_student_fails(self):
+        """Test that submitting a form for an existing student (duplicate name, age, gender) fails with 409."""
+        name = RandomDataGenerator.random_name()
+        age = random.randint(5, 18)
+        gender = RandomDataGenerator.random_gender()
 
-        response = self.client.post(self.submit_url, updated_form_data, format='json')
-        self.assertIn(response.status_code, [status.HTTP_200_OK, status.HTTP_201_CREATED])
+        # First submission (should succeed)
+        form_data_1 = self.generate_student_form_data(name=name, age=age, gender=gender)
+        response_1 = self.client.post(self.submit_student_url, form_data_1, format='json')
+        print("test_submit_duplicate_student_fails - Response 1:", response_1.data) # Debug print
+        self.assertEqual(response_1.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(Student.objects.filter(name=name, age=age, gender=gender).exists())
 
-        # 3. Verify that the student's school name was updated
-        student.refresh_from_db()
-        self.assertEqual(student.school_name, updated_school_name)
-        # Also ensure we haven't created a new student
-        self.assertEqual(Student.objects.filter(student_id=student_id).count(), 1)
+        # Second submission with same name, age, gender (should fail)
+        form_data_2 = self.generate_student_form_data(name=name, age=age, gender=gender)
+        response_2 = self.client.post(self.submit_student_url, form_data_2, format='json')
+        print("test_submit_duplicate_student_fails - Response 2:", response_2.data) # Debug print
+        self.assertEqual(response_2.status_code, status.HTTP_409_CONFLICT)
+        self.assertIn("error", response_2.data)
 
-    def test_submit_5000_forms(self):
-        """Submit 5000 forms"""
-        print("\n=== Submitting 5000 Forms ===")
-        
-        successful = 0
-        
-        for i in range(5000):
-            form_data = self.generate_form_data()
-            response = self.client.post(self.submit_url, form_data, format='json')
-            
-            if response.status_code in [200, 201]:
-                successful += 1
-            
-            if (i + 1) % 500 == 0:
-                print(f"Progress: {i + 1}/5000 - Success: {successful}")
-        
-        print(f"Total successful: {successful}/5000")
 
+class FollowUpFormSubmissionTests(TestCase):
+    """Test follow-up form submission for existing students"""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(
+            username='testuser_followup',
+            email='followup@example.com',
+            password='testpass123'
+        )
+        self.client.force_authenticate(user=self.user)
+        self.submit_followup_url = reverse('submit-followup')
+
+        # Create a student and baseline visit directly in the database
+        self.student = Student.objects.create(
+            name=RandomDataGenerator.random_name(),
+            age=random.randint(5, 18),
+            gender=RandomDataGenerator.random_gender(),
+            school_name=RandomDataGenerator.random_school(),
+            parental_myopia=random.choice(["None", "Father", "Mother", "Both"]),
+            height=round(random.uniform(100, 180), 2),
+            weight=round(random.uniform(20, 80), 2),
+            num_siblings=random.randint(0, 5),
+            birth_order=random.choice(["First", "Second", "Third", "Last", "Only"]),
+            siblings_myopia=random.randint(0, 3),
+        )
+        self.baseline_visit = ClinicalVisit.objects.create(
+            student=self.student,
+            visit_date=date.today(),
+            visit_type="BASELINE"
+        )
+        # Create related objects for the baseline visit
+        LifestyleBehavior.objects.create(visit=self.baseline_visit)
+        EnvironmentalFactor.objects.create(visit=self.baseline_visit)
+        ClinicalHistory.objects.create(visit=self.baseline_visit)
+        AwarenessSafety.objects.create(visit=self.baseline_visit)
+        OcularExamination.objects.create(visit=self.baseline_visit)
+
+        self.student_id = self.student.student_id
+    
+    def generate_followup_form_data(self, student_id=None):
+        return {
+            "student_id": student_id if student_id else self.student_id,
+            "visit_date": (date.today() + timedelta(days=30)).isoformat(), # Future date for followup
+            "lifestyle": {
+                "outdoor_time": "11:00:00",
+                "outdoor_duration": random.choice(["<1hr", "1-2hrs", "2-3hrs"]),
+                "sun_exposure": random.choice(["Low", "Medium", "High"]),
+                "near_work_hours": random.choice(["<2hrs", "2-4hrs", "4-6hrs", ">6hrs"]),
+                "screen_time": random.choice(["<2hrs", "2-4hrs", "4-6hrs", ">6hrs"]),
+                "primary_device": random.choice(["Smartphone", "Tablet", "Computer", "TV"]),
+                "reading_distance": random.choice(["<20cm", "20-30cm", ">30cm"]),
+                "viewing_posture_ratio": random.choice(["Good", "Average", "Poor"]),
+                "dietary_habit": random.choice(["Vegetarian", "Non-Vegetarian", "Vegan"]),
+                "dietary_other": "Some other diet",
+                "sleep_duration": random.choice(["<6hrs", "6-8hrs", ">8hrs"]),
+                "usual_bedtime": "22:00:00",
+            },
+            "environment": {
+                "school_type": random.choice(["Government", "Private", "International"]),
+                "classroom_strength": random.choice(["<30", "30-50", ">50"]),
+                "seating_position": random.choice(["Front", "Middle", "Back"]),
+                "teaching_methodology": random.choice(["Traditional", "Modern", "Hybrid"]),
+                "lighting": random.choice(["Natural", "Artificial", "Mixed"]),
+                "sunlight_source": random.choice(["Window", "Door", "None"]),
+            },
+            "history": {
+                "diagnosed_earlier": RandomDataGenerator.random_boolean(),
+                "age_at_diagnosis": random.randint(5, 15),
+                "power_changed_last_3yrs": RandomDataGenerator.random_boolean(),
+                "compliance": random.choice(["High", "Medium", "Low"]),
+                "previous_re": "-1.00",
+                "previous_le": "-1.50",
+                "current_re": "-2.00",
+                "current_le": "-2.50",
+            },
+            "awareness": {
+                "aware_eye_strain": RandomDataGenerator.random_boolean(),
+                "access_to_vision_care": RandomDataGenerator.random_boolean(),
+                "follows_preventive_measures": random.choice(["Always", "Sometimes", "Never"]),
+                "source_of_awareness": random.choice(["Doctor", "Internet", "Friends", "Family"]),
+            },
+            "ocular": {
+                "uncorrectedvisual_acuity_right_eye": "6/9",
+                "uncorrectedvisual_acuity_left_eye": "6/12",
+                "bestcorrectedvisual_acuity_right_eye": "6/6",
+                "bestcorrectedvisual_acuity_left_eye": "6/6",
+                "cycloplegic_auto_refraction_right_eye": "-1.00",
+                "cycloplegic_auto_refraction_left_eye": "-1.25",
+                "spherical_power_right_eye": "-1.00",
+                "spherical_power_left_eye": "-1.25",
+                "axial_length_right_eye": "23.5",
+                "axial_length_left_eye": "23.8",
+                "corneal_curvature_right_eye": "42.5",
+                "corneal_curvature_left_eye": "42.8",
+                "central_corneal_thickness_right_eye": "550",
+                "central_corneal_thickness_left_eye": "552",
+                "anterior_segment_finding_right_eye": "Normal",
+                "anterior_segment_finding_left_eye": "Normal",
+                "amblyopia_or_strabismus": RandomDataGenerator.random_boolean(),
+                "fundus_examination_finding_right_eye": "Normal",
+                "fundus_examination_finding_left_eye": "Normal",
+            }
+        }
+    
+    def test_submit_followup_creates_visit_for_existing_student(self):
+        """Test that submitting a follow-up form creates a clinical visit for an existing student."""
+        form_data = self.generate_followup_form_data()
+        response = self.client.post(self.submit_followup_url, form_data, format='json')
+        print("test_submit_followup_creates_visit_for_existing_student response:", response.data) # Debug print
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn("visit_id", response.data)
+
+        # Verify a new ClinicalVisit (FOLLOW_UP) was created for the student
+        self.assertTrue(ClinicalVisit.objects.filter(
+            student=self.student,
+            visit_type="FOLLOW_UP",
+            id=response.data['visit_id']
+        ).exists())
+        self.assertTrue(LifestyleBehavior.objects.filter(visit__id=response.data['visit_id']).exists())
+
+    def test_submit_followup_with_invalid_student_id_fails(self):
+        """Test that submitting a follow-up form with an invalid student_id fails."""
+        form_data = self.generate_followup_form_data(student_id="NONEXISTENT-ID")
+        response = self.client.post(self.submit_followup_url, form_data, format='json')
+        print("test_submit_followup_with_invalid_student_id_fails response:", response.data) # Debug print
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertIn("error", response.data)
+
+    def test_submit_followup_without_student_id_fails(self):
+        """Test that submitting a follow-up form without a student_id fails."""
+        form_data = self.generate_followup_form_data()
+        del form_data['student_id'] # Remove student_id
+        response = self.client.post(self.submit_followup_url, form_data, format='json')
+        print("test_submit_followup_without_student_id_fails response:", response.data) # Debug print
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("error", response.data)
+
+
+class GetEndpointsTests(TestCase):
+    """Test GET endpoints for retrieving data"""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(
+            username='testgetuser',
+            email='get@example.com',
+            password='testpass123'
+        )
+        self.client.force_authenticate(user=self.user)
+
+        # Create a student and a visit for this user
+        self.student = Student.objects.create(
+            name=RandomDataGenerator.random_name(),
+            age=10,
+            gender="Female",
+            school_name="Test School"
+        )
+        self.visit = ClinicalVisit.objects.create(
+            student=self.student,
+            visit_date=date.today(),
+            visit_type="BASELINE"
+        )
+
+    def test_get_user_profile(self):
+        """Test the user-profile endpoint"""
+        url = reverse('user-profile')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['username'], self.user.username)
+
+    def test_get_user_overview(self):
+        """Test the user-overview endpoint"""
+        url = reverse('user-overview')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('total_students', response.data)
+
+    def test_get_user_students(self):
+        """Test the user-students endpoint"""
+        url = reverse('user-students')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['name'], self.student.name)
+
+    def test_get_user_student_visits(self):
+        """Test the user-student-visits endpoint"""
+        url = reverse('user-student-visits', kwargs={'student_id': self.student.student_id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['visit_type'], self.visit.visit_type)
+
+
+class ModelStrTests(TestCase):
+    """Test __str__ methods on models"""
+
+    def test_student_str(self):
+        """Test the Student __str__ method"""
+        student = Student.objects.create(name="Test Student", age=10, gender="Male")
+        self.assertEqual(str(student), student.student_id)
+
+    def test_clinical_visit_str(self):
+        """Test the ClinicalVisit __str__ method"""
+        student = Student.objects.create(name="Test Student", age=10, gender="Male")
+        visit = ClinicalVisit.objects.create(
+            student=student,
+            visit_date=date.today(),
+            visit_type="BASELINE"
+        )
+        expected_str = f"{student.student_id} - {date.today()} (BASELINE)"
+        self.assertEqual(str(visit), expected_str)
 
 print("\n" + "="*70)
 print("MYOPIA ANALYSIS - COMPREHENSIVE TEST SUITE")

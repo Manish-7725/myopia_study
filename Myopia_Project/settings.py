@@ -51,7 +51,6 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',   # must be high
-    # 'whitenoise.middleware.WhiteNoiseMiddleware',  # COMMENTED: whitenoise not installed
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -59,7 +58,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # "whitenoise.middleware.WhiteNoiseMiddleware",  # COMMENTED: whitenoise not installed
 
 ]
 
@@ -79,6 +77,9 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'Myopia_Study.authentication.CookieJWTAuthentication', # Use the new class
+    ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
@@ -95,8 +96,8 @@ TIME_ZONE = 'Asia/Kolkata'
 USE_TZ = True
 
 # In development, allow localhost
-# ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
-ALLOWED_HOSTS = ['.onrender.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+# ALLOWED_HOSTS = ['.onrender.com', 'localhost', '127.0.0.1']
 
 
 TEMPLATES = [
@@ -178,4 +179,3 @@ SIMPLE_JWT = {
         "rest_framework_simplejwt.tokens.AccessToken",
     ),
 }
-

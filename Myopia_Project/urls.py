@@ -20,7 +20,6 @@ from Myopia_Study.views import FrontendAppView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/auth/', include('Myopia_Study.api_urls')),
     path("api/", include("Myopia_Study.api_urls")),
     re_path(r'^(?P<path>.*\.html)$', FrontendAppView.as_view()),
 ]

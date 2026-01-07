@@ -3,9 +3,36 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from django.db import transaction
+from django.utils.timezone import localdate
 
 from .models import Student, ClinicalVisit, OcularExamination
 from .serializers import OcularExaminationSerializer
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_followups(request):
+    """
+    Provides a list of all follow-up visits.
+    """
+    today = localdate()
+    visits = ClinicalVisit.objects.filter(visit_type="FOLLOW_UP").order_by("-visit_date")
+    data = []
+    for visit in visits:
+        status = "Completed"
+        if visit.visit_date > today:
+            status = "Due"
+        elif visit.visit_date < today:
+            status = "Overdue"
+        
+        data.append({
+            "student_id": visit.student.student_id,
+            "student_name": visit.student.name,
+            "school_name": visit.student.school_name,
+            "last_visit_date": visit.visit_date,
+            "status": status,
+        })
+    return Response(data)
 
 
 @api_view(["POST"])
