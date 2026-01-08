@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
     // --- UTILITY & API FUNCTIONS ---
-    const API_BASE_URL = '/api';
+    const API_BASE_URL = 'http://127.0.0.1:8000/api';
 
     const showToast = (message, level = 'error', duration = 3000) => {
         // A real app would have a more sophisticated toast system.
@@ -151,9 +151,47 @@ document.addEventListener('DOMContentLoaded', function () {
     window.openNewFollowup = openNewFollowup;
 
 
-    // --- SIDEBAR ---
+    // --- SIDEBAR TOGGLING LOGIC ---
     const sidebar = document.getElementById('sidebar');
     const sidebarOverlay = document.querySelector('.sidebar-overlay');
+    const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
+    const desktopSidebarToggle = document.getElementById('desktopSidebarToggle');
+    const closeSidebarBtn = document.querySelector('.btn-close-sidebar');
+    const contentWrapper = document.getElementById('content-wrapper'); // Assuming content-wrapper exists
+
+    // Toggle for mobile
+    if (mobileSidebarToggle) {
+        mobileSidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('show');
+            sidebarOverlay.classList.toggle('show');
+        });
+    }
+
+    // Close on overlay click
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', () => {
+            sidebar.classList.remove('show');
+            sidebarOverlay.classList.remove('show');
+        });
+    }
+
+    // Close button inside sidebar (mobile)
+    if (closeSidebarBtn) {
+        closeSidebarBtn.addEventListener('click', () => {
+            sidebar.classList.remove('show');
+            sidebarOverlay.classList.remove('show');
+        });
+    }
+
+    // Toggle for desktop
+    if (desktopSidebarToggle && contentWrapper) {
+        desktopSidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            contentWrapper.classList.toggle('sidebar-collapsed');
+        });
+    }
+
+
     // --- INITIALIZATION ---
     const init = () => {
         // Remove all onclick attributes and replace with modern listeners
@@ -162,16 +200,18 @@ document.addEventListener('DOMContentLoaded', function () {
             el.removeAttribute('onclick');
             
             // Re-wire specific, known functions
-            if (onclickValue.includes('toggleSidebar')) {
-                el.addEventListener('click', e => { e.preventDefault(); toggleSidebar(); });
-            } else if (onclickValue.includes('showSection')) {
+            if (onclickValue.includes('showSection')) {
                 const sectionMatch = onclickValue.match(/showSection\('([^']+)'/);
                 if(sectionMatch) {
                     const sectionId = sectionMatch[1];
                      el.addEventListener('click', e => {
                         e.preventDefault();
                         showSection(sectionId, el);
-                        if (sidebar.classList.contains('show')) toggleSidebar();
+                        // Close sidebar on mobile after navigating
+                        if (sidebar.classList.contains('show')) {
+                            sidebar.classList.remove('show');
+                            sidebarOverlay.classList.remove('show');
+                        }
                     });
                 }
             } else if (onclickValue.includes('submitLogout')) {

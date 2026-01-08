@@ -25,11 +25,11 @@
 <body>
 
     <!-- Sidebar Overlay for Mobile -->
-    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+    <div class="sidebar-overlay"></div>
 
     <!-- SIDEBAR -->
     <aside id="sidebar">
-        <button class="btn-close-sidebar" onclick="toggleSidebar()"><i class="fa-solid fa-xmark"></i></button>
+        <button class="btn-close-sidebar"><i class="fa-solid fa-xmark"></i></button>
         <div class="sidebar-brand">
             <div class="bg-primary bg-gradient rounded-4 p-2 d-flex align-items-center justify-content-center text-white shadow-sm"
                 style="width: 44px; height: 44px;">
@@ -90,11 +90,11 @@
         <nav class="main-navbar">
             <div class="d-flex align-items-center">
                         <!-- Mobile Toggle -->
-                        <button class="btn btn-light d-lg-none me-3" onclick="toggleSidebar()">
+                        <button class="btn btn-light d-lg-none me-3" id="mobileSidebarToggle">
                             <i class="fa fa-bars"></i>
                         </button>
                                 <!-- Desktop Toggle -->
-                                <button class="btn btn-light d-none d-lg-block me-3" onclick="toggleSidebar()">
+                                <button class="btn btn-light d-none d-lg-block me-3" id="desktopSidebarToggle">
                                     <i class="fa-solid fa-bars-staggered"></i>
                                 </button>                        <h5 class="mb-0 fw-bold d-none d-sm-block text-secondary fs-6">                    <i class="bi bi-house-door me-2"></i>Research Portal
                 </h5>
