@@ -23,27 +23,15 @@
 </head>
 
 <body>
+    <!-- Toast Container for Notifications -->
+    <div id="toast-container" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1080;"></div>
 
     <!-- Sidebar Overlay for Mobile -->
     <div class="sidebar-overlay"></div>
 
     <!-- SIDEBAR -->
     <aside id="sidebar" style="overflow-y: auto; max-height: 100vh;">
-    <style>
-        #sidebar::-webkit-scrollbar {
-            width: 6px;
-        }
-        #sidebar::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        #sidebar::-webkit-scrollbar-thumb {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 3px;
-        }
-        #sidebar::-webkit-scrollbar-thumb:hover {
-            background: rgba(0, 0, 0, 0.3);
-        }
-    </style>
+
         <button class="btn-close-sidebar"><i class="fa-solid fa-xmark"></i></button>
         <div class="sidebar-brand">
             <div class="bg-primary bg-gradient rounded-4 p-2 d-flex align-items-center justify-content-center text-white shadow-sm"
@@ -58,64 +46,60 @@
                 style="font-size: 0.75rem; letter-spacing: 0.08em;">Admin Menu</div>
 
             <!-- Dashboard -->
-            <div class="nav-link active" onclick="showSection('dashboard', this)" id="dashboard-nav">
+            <div class="nav-link active" id="nav-dashboard-link">
                 <i class="bi bi-grid-1x2-fill"></i>
                 <span>Dashboard</span>
             </div>
 
             <!-- Students -->
-            <div class="nav-link" onclick="showSection('patients', this)">
+            <div class="nav-link" id="nav-patients-link">
                 <i class="bi bi-people-fill"></i>
                 <span>Students</span>
             </div>
 
-            <!-- Users & Roles -->
-            <div class="nav-link" onclick="showSection('users', this)">
+            <!-- Users & Admin -->
+            <div class="nav-link" id="nav-users-link">
                 <i class="bi bi-person-gear"></i>
-                <span>Users & Roles</span>
+                <span>Users & Admin</span>
             </div>
 
             <!-- Forms & Data -->
-            <div class="nav-link" onclick="showSection('forms', this)">
+            <div class="nav-link" id="nav-forms-link">
                 <i class="bi bi-clipboard-data-fill"></i>
                 <span>Forms & Data</span>
             </div>
 
             <!-- Follow-Ups -->
-            <div class="nav-link" onclick="showSection('followups', this)">
+            <div class="nav-link" id="nav-followups-link">
                 <i class="bi bi-calendar-check-fill"></i>
                 <span>Follow-Ups</span>
             </div>
 
             <!-- Analytics -->
-            <div class="nav-link" onclick="showSection('analytics', this)">
+            <div class="nav-link" id="nav-analytics-link">
                 <i class="bi bi-graph-up"></i>
                 <span>Analytics</span>
             </div>
 
             <!-- Reports / Export -->
-            <div class="nav-link" onclick="showSection('reports', this)">
+            <div class="nav-link" id="nav-reports-link">
                 <i class="bi bi-file-earmark-spreadsheet-fill"></i>
                 <span>Reports / Export</span>
             </div>
 
             <!-- Audit Logs -->
-            <div class="nav-link" onclick="showSection('audit', this)">
+            <div class="nav-link" id="nav-audit-link">
                 <i class="bi bi-journal-text"></i>
                 <span>Audit Logs</span>
             </div>
 
             <!-- System Settings -->
-            <div class="nav-link" onclick="showSection('system-settings', this)">
+            <div class="nav-link" id="nav-system-settings-link">
                 <i class="bi bi-gear-fill"></i>
                 <span>System Settings</span>
             </div>
 
-            <!-- Help / Docs -->
-            <div class="nav-link" onclick="showSection('help', this)">
-                <i class="bi bi-question-circle-fill"></i>
-                <span>Help / Docs</span>
-            </div>
+
         </nav>
 
         <div class="mt-auto border-top border-light p-4">
@@ -127,7 +111,7 @@
                     <small class="text-muted fw-medium" style="font-size: 0.8rem;">Ophthalmologist</small>
                 </div>
             </div>
-            <button class="btn btn-light w-100 text-danger fw-bold justify-content-center" onclick="submitLogout()">
+            <button class="btn btn-light w-100 text-danger fw-bold justify-content-center" id="logout-button">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </button>
         </div>
@@ -246,7 +230,7 @@
                         <li>
                             <hr class="dropdown-divider">
                         </li>
-                        <li><a class="dropdown-item rounded-2 py-2 text-danger" href="#" onclick="submitLogout()"><i
+                        <li><a class="dropdown-item rounded-2 py-2 text-danger" href="#" id="logout-link"><i
                                     class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
                     </ul>
                 </div>
@@ -264,11 +248,7 @@
                         <h2 class="section-title">Dashboard Overview</h2>
                         <p class="text-muted m-0 fs-6">Welcome back! Here's your study progress for today.</p>
                     </div>
-                    <button class="btn btn-primary"
-                        onclick="switchFormState('entry')">
-                        <i class="bi bi-plus-lg"></i>
-                        <span>New Clinical Entry</span>
-                    </button>
+
                 </div>
 
                 <!-- Summary Cards -->
@@ -639,48 +619,33 @@
                         </nav>
                     </div>
                     <div class="d-flex gap-3">
-                        <button class="btn btn-outline-primary" onclick="exportStudents()">
-                            <i class="bi bi-download me-2"></i>Export
-                        </button>
-                        <button class="btn btn-primary" onclick="showMergeDuplicates()">
-                            <i class="bi bi-arrow-left-right me-2"></i>Merge Duplicates
-                        </button>
+
+
                     </div>
                 </div>
 
-                <!-- Student Management Overview -->
-                <div class="alert alert-info border-0 bg-soft-blue mb-4">
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-person-lines-fill text-primary fs-4 me-3"></i>
-                        <div>
-                            <h6 class="mb-1 text-primary fw-bold">Student Management Capabilities</h6>
-                            <p class="mb-0 small">Effortlessly view and manage all student records. Utilize the search and filter options to find specific students, and identify or merge duplicate entries to maintain data integrity.</p>
-                        </div>
-                    </div>
-                </div>
+
 
                 <!-- Filters and Search -->
                 <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-body p-4">
-                        <div class="row g-4">
-                            <div class="col-md-4">
-                                <div class="input-group">
-                                    <span class="input-group-text bg-white border-end-0 ps-3"><i
-                                            class="bi bi-search text-muted"></i></span>
-                                    <input type="text" id="patientSearchInput"
-                                        class="form-control border-start-0 ps-1 bg-white shadow-none"
-                                        placeholder="Search by ID, name, or school...">
-                                </div>
-                            </div>
-                            <div class="col-md-8">
+                    <div class="card-body p-4 d-flex justify-content-between">
+                        <div class="input-group" style="width: 300px;">
+                            <span class="input-group-text bg-white border-end-0 ps-3"><i class="bi bi-search text-muted"></i></span>
+                            <input type="text" id="patientSearchInput" class="form-control border-start-0 ps-1 bg-white shadow-none" placeholder="Search by ID, name, or school...">
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-primary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-funnel me-1"></i> Filters
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end p-4" aria-labelledby="filterDropdown" style="width: 500px;">
                                 <div class="row g-3">
-                                    <div class="col-md-3">
+                                    <div class="col-md-6">
                                         <select id="schoolFilter" class="form-select">
                                             <option value="">All Schools</option>
                                             <!-- Populated by JS -->
                                         </select>
                                     </div>
-                                    <div class="col-md-2">
+                                    <div class="col-md-6">
                                         <select id="genderFilter" class="form-select">
                                             <option value="">All Genders</option>
                                             <option value="Male">Male</option>
@@ -688,7 +653,7 @@
                                             <option value="Other">Other</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-2">
+                                    <div class="col-md-12">
                                         <select id="statusFilter" class="form-select">
                                             <option value="">All Status</option>
                                             <option value="active">Active</option>
@@ -697,7 +662,7 @@
                                             <option value="inactive">Inactive</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-5 text-end">
+                                    <div class="col-12 text-end mt-4">
                                         <button class="btn btn-outline-secondary me-2" onclick="clearPatientFilters()">
                                             <i class="bi bi-x-circle me-1"></i>Clear
                                         </button>
@@ -732,13 +697,13 @@
                                 <thead>
                                     <tr>
                                         <th class="ps-4">
-                                            <input type="checkbox" id="selectAllStudents" onchange="toggleSelectAll()">
+                                            <input type="checkbox" id="selectAllStudentsCheckbox">
                                         </th>
                                         <th class="ps-4">Student ID</th>
                                         <th>Name</th>
                                         <th>School</th>
                                         <th>Age/Gender</th>
-                                        <th>Created By</th>
+                                        <th>Created At</th>
                                         <th>Status</th>
                                         <th>Last Visit</th>
                                         <th class="text-end pe-4">Actions</th>
@@ -1865,53 +1830,300 @@
                             </ol>
                         </nav>
                 </div>
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal" style="display: none;">
                     <i class="bi bi-plus-lg"></i> Add User
                 </button>
             </div>
 
-            <!-- New actions section for User Management -->
+            <!-- User Management Actions -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-body p-4">
                     <h5 class="fw-bold text-dark mb-3">User Management Actions</h5>
-                    <p class="text-muted small">Perform administrative tasks related to user accounts. Specific user actions like activation, deactivation, password reset, and force logout can be performed through the "Admin Overrides" feature for individual users in the table below.</p>
+                    <p class="text-muted small">Perform administrative tasks related to user accounts. Create new users, manage account status, reset passwords, and monitor user activity.</p>
                     <div class="d-flex flex-wrap gap-3">
                         <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
                             <i class="bi bi-person-plus me-2"></i>Create New User
                         </button>
-                        <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#adminOverrideModal">
-                            <i class="bi bi-toggle-on me-2"></i>Activate / Deactivate
+                        <button class="btn btn-outline-success" onclick="bulkActivateUsers()">
+                            <i class="bi bi-check-circle me-2"></i>Activate Accounts
                         </button>
-                        <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#resetPasswordModal">
+                        <button class="btn btn-outline-warning" onclick="bulkDeactivateUsers()">
+                            <i class="bi bi-x-circle me-2"></i>Block Accounts
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="bulkResetPasswords()">
                             <i class="bi bi-key me-2"></i>Reset Passwords
                         </button>
-                        <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#adminOverrideModal">
+                        <button class="btn btn-outline-danger" onclick="bulkForceLogout()">
                             <i class="bi bi-box-arrow-right me-2"></i>Force Logout
-                        </button>
-                        <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#adminOverrideModal">
-                            <i class="bi bi-shield-lock me-2"></i>Admin Overrides
                         </button>
                     </div>
                 </div>
             </div>
 
-            <div class="card border-0 bg-transparent shadow-none">
-                <div class="table-responsive">
-                    <table class="table table-custom">
-                        <thead>
-                            <tr>
-                                <th class="ps-4">Username</th>
-                                <th>Full Name</th>
-                                <th>Role</th>
-                                <th>Joined</th>
-                                <th>Last Login</th>
-                                <th class="text-end pe-4">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="usersTableBody">
-                            <!-- Populated by JS -->
-                        </tbody>
-                    </table>
+            <!-- User Statistics -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <div class="bg-primary bg-opacity-10 rounded-circle p-3 d-inline-flex mb-3">
+                                <i class="bi bi-people-fill text-primary fs-4"></i>
+                            </div>
+                            <h4 class="fw-bold text-dark mb-1" id="totalUsersCount">--</h4>
+                            <small class="text-muted">Total Users</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <div class="bg-success bg-opacity-10 rounded-circle p-3 d-inline-flex mb-3">
+                                <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                            </div>
+                            <h4 class="fw-bold text-dark mb-1" id="activeUsersCount">--</h4>
+                            <small class="text-muted">Active Users</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <div class="bg-warning bg-opacity-10 rounded-circle p-3 d-inline-flex mb-3">
+                                <i class="bi bi-pause-circle-fill text-warning fs-4"></i>
+                            </div>
+                            <h4 class="fw-bold text-dark mb-1" id="inactiveUsersCount">--</h4>
+                            <small class="text-muted">Inactive Users</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <div class="bg-danger bg-opacity-10 rounded-circle p-3 d-inline-flex mb-3">
+                                <i class="bi bi-x-circle-fill text-danger fs-4"></i>
+                            </div>
+                            <h4 class="fw-bold text-dark mb-1" id="blockedUsersCount">--</h4>
+                            <small class="text-muted">Blocked Users</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Table -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom-0 py-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold text-dark">User Accounts</h5>
+                        <div class="d-flex gap-2">
+                            <input type="text" class="form-control form-control-sm" placeholder="Search users..." id="userSearchInput" style="width: 200px;">
+                            <select class="form-select form-select-sm" id="userStatusFilter" style="width: 120px;">
+                                <option value="">All Status</option>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                                <option value="blocked">Blocked</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-custom mb-0" id="usersTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4" style="width: 40px;">
+                                        <input type="checkbox" id="selectAllUsersCheckbox">
+                                    </th>
+                                    <th class="ps-4">Username</th>
+                                    <th>Full Name</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th>Joined</th>
+                                    <th>Last Login</th>
+                                    <th class="text-end pe-4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <!-- Sample user data -->
+                                <tr>
+                                    <td class="ps-4">
+                                        <input type="checkbox" class="user-checkbox" value="1">
+                                    </td>
+                                    <td class="ps-4 fw-medium">dr.smith</td>
+                                    <td>Dr. Sarah Johnson</td>
+                                    <td>
+                                        <span class="badge bg-primary bg-opacity-10 text-primary">Administrator</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-success">Active</span>
+                                    </td>
+                                    <td class="small text-muted">Jan 15, 2024</td>
+                                    <td class="small text-muted">2 hours ago</td>
+                                    <td class="text-end pe-4">
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                Actions
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item" href="#" onclick="viewUserDetails(1)">
+                                                    <i class="bi bi-eye me-2"></i>View Details</a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="editUser(1)">
+                                                    <i class="bi bi-pencil me-2"></i>Edit User</a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="resetUserPassword(1)">
+                                                    <i class="bi bi-key me-2"></i>Reset Password</a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item text-warning" href="#" onclick="deactivateUser(1)">
+                                                    <i class="bi bi-pause-circle me-2"></i>Deactivate</a></li>
+                                                <li><a class="dropdown-item text-danger" href="#" onclick="blockUser(1)">
+                                                    <i class="bi bi-x-circle me-2"></i>Block Account</a></li>
+                                                <li><a class="dropdown-item text-danger" href="#" onclick="deleteUser(1)">
+                                                    <i class="bi bi-trash me-2"></i>Delete User</a></li>
+                                                <li><a class="dropdown-item text-danger" href="#" onclick="forceLogoutUser(1)">
+                                                    <i class="bi bi-box-arrow-right me-2"></i>Force Logout</a></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="ps-4">
+                                        <input type="checkbox" class="user-checkbox" value="2">
+                                    </td>
+                                    <td class="ps-4 fw-medium">dr.brown</td>
+                                    <td>Dr. Michael Brown</td>
+                                    <td>
+                                        <span class="badge bg-info bg-opacity-10 text-info">Clinician</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-success">Active</span>
+                                    </td>
+                                    <td class="small text-muted">Feb 20, 2024</td>
+                                    <td class="small text-muted">1 day ago</td>
+                                    <td class="text-end pe-4">
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                Actions
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item" href="#" onclick="viewUserDetails(2)">
+                                                    <i class="bi bi-eye me-2"></i>View Details</a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="editUser(2)">
+                                                    <i class="bi bi-pencil me-2"></i>Edit User</a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="resetUserPassword(2)">
+                                                    <i class="bi bi-key me-2"></i>Reset Password</a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item text-warning" href="#" onclick="deactivateUser(2)">
+                                                    <i class="bi bi-pause-circle me-2"></i>Deactivate</a></li>
+                                                <li><a class="dropdown-item text-danger" href="#" onclick="blockUser(2)">
+                                                    <i class="bi bi-x-circle me-2"></i>Block Account</a></li>
+                                                <li><a class="dropdown-item text-danger" href="#" onclick="forceLogoutUser(2)">
+                                                    <i class="bi bi-box-arrow-right me-2"></i>Force Logout</a></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="ps-4">
+                                        <input type="checkbox" class="user-checkbox" value="3">
+                                    </td>
+                                    <td class="ps-4 fw-medium">data.entry1</td>
+                                    <td>Jane Wilson</td>
+                                    <td>
+                                        <span class="badge bg-secondary bg-opacity-10 text-secondary">Data Entry</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-warning">Inactive</span>
+                                    </td>
+                                    <td class="small text-muted">Mar 10, 2024</td>
+                                    <td class="small text-muted">1 week ago</td>
+                                    <td class="text-end pe-4">
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                Actions
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item" href="#" onclick="viewUserDetails(3)">
+                                                    <i class="bi bi-eye me-2"></i>View Details</a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="editUser(3)">
+                                                    <i class="bi bi-pencil me-2"></i>Edit User</a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="resetUserPassword(3)">
+                                                    <i class="bi bi-key me-2"></i>Reset Password</a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item text-success" href="#" onclick="activateUser(3)">
+                                                    <i class="bi bi-play-circle me-2"></i>Activate</a></li>
+                                                <li><a class="dropdown-item text-danger" href="#" onclick="blockUser(3)">
+                                                    <i class="bi bi-x-circle me-2"></i>Block Account</a></li>
+                                                <li><a class="dropdown-item text-danger" href="#" onclick="forceLogoutUser(3)">
+                                                    <i class="bi bi-box-arrow-right me-2"></i>Force Logout</a></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="ps-4">
+                                        <input type="checkbox" class="user-checkbox" value="4">
+                                    </td>
+                                    <td class="ps-4 fw-medium">dr.davis</td>
+                                    <td>Dr. Emily Davis</td>
+                                    <td>
+                                        <span class="badge bg-info bg-opacity-10 text-info">Clinician</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-danger">Blocked</span>
+                                    </td>
+                                    <td class="small text-muted">Jan 5, 2024</td>
+                                    <td class="small text-muted">2 weeks ago</td>
+                                    <td class="text-end pe-4">
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                Actions
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item" href="#" onclick="viewUserDetails(4)">
+                                                    <i class="bi bi-eye me-2"></i>View Details</a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="editUser(4)">
+                                                    <i class="bi bi-pencil me-2"></i>Edit User</a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="resetUserPassword(4)">
+                                                    <i class="bi bi-key me-2"></i>Reset Password</a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item text-success" href="#" onclick="activateUser(4)">
+                                                    <i class="bi bi-play-circle me-2"></i>Activate</a></li>
+                                                <li><a class="dropdown-item text-warning" href="#" onclick="deactivateUser(4)">
+                                                    <i class="bi bi-pause-circle me-2"></i>Deactivate</a></li>
+                                                <li><a class="dropdown-item text-danger" href="#" onclick="forceLogoutUser(4)">
+                                                    <i class="bi bi-box-arrow-right me-2"></i>Force Logout</a></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-top-0 py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-3">
+                            <small class="text-muted fw-medium" id="userPaginationInfo">Showing 4 users</small>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    Bulk Actions
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" onclick="bulkActivateSelected()">
+                                        <i class="bi bi-check-circle me-2"></i>Activate Selected</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="bulkDeactivateSelected()">
+                                        <i class="bi bi-pause-circle me-2"></i>Deactivate Selected</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="bulkBlockSelected()">
+                                        <i class="bi bi-x-circle me-2"></i>Block Selected</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="bulkResetPasswordsSelected()">
+                                        <i class="bi bi-key me-2"></i>Reset Passwords</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="bulkForceLogoutSelected()">
+                                        <i class="bi bi-box-arrow-right me-2"></i>Force Logout</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="btn-group shadow-sm">
+                            <button class="btn btn-white border px-3" id="userPrevBtn" onclick="prevUserPage()"><i class="bi bi-chevron-left"></i></button>
+                            <button class="btn btn-white border px-3" id="userNextBtn" onclick="nextUserPage()"><i class="bi bi-chevron-right"></i></button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -2353,37 +2565,7 @@
         </div>
     </div>
 
-    <!-- Add Admin Modal -->
-    <div class="modal fade" id="addAdminModal" tabindex="-1" aria-labelledby="addAdminModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addAdminModalLabel">Add New Admin</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form id="addAdminForm" onsubmit="handleCreateAdmin(event)">
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="adminUsername" class="form-label">Username</label>
-                            <input type="text" class="form-control" id="adminUsername" name="username" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="adminEmail" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="adminEmail" name="email" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="adminPassword" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="adminPassword" name="password" required>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Add Admin</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+
 
     <!-- Student Modal -->
     <div class="modal fade" id="studentModal" tabindex="-1" aria-labelledby="studentModalLabel" aria-hidden="true">

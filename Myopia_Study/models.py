@@ -1,5 +1,5 @@
-from django.db import models, transaction
-from django.core.exceptions import ObjectDoesNotExist
+from django.db import models
+# from django.core.exceptions import ObjectDoesNotExist
 
 # Custom Manager for High-Performance Export
 class ClinicalVisitManager(models.Manager):

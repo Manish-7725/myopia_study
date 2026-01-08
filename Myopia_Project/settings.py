@@ -61,7 +61,8 @@ MIDDLEWARE = [
 
 ]
 
-CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000').split(',')
+CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000,http://127.0.0.1:5500').split(',')
+CORS_ALLOW_ALL_ORIGINS = True
 
 # In production, set CORS_ALLOWED_ORIGINS in your .env file to a comma-separated list of your frontend domains.
 # Example: CORS_ALLOWED_ORIGINS=https://your-frontend-domain.com,https://www.your-frontend-domain.com

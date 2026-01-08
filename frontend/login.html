@@ -2,115 +2,55 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Login</title>
+    <title>Login • Myopia Study</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
-    <!-- <link rel="stylesheet" href="LoginPage.css"> -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Fonts: Inter for a clean, modern look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <style>
-        body {
-            background: #F5F7FA !important;
-            /* Clinical background */
-            font-family: "Inter", sans-serif;
-        }
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
 
-        .card {
-            border-radius: 14px;
-            border: 1px solid #DFE7EE;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            background: #FFFFFF;
-        }
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
 
-        h2 {
-            background: #E9F4FF;
-            color: #0A6EF2;
-            padding: 12px;
-            border-radius: 10px;
-            font-size: 22px;
-            font-weight: 600;
-        }
-
-        /* Role toggle redesigned with medical theme */
-        .role-toggle {
-            display: inline-block;
-            padding: 12px 18px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            text-align: center;
-            width: 46%;
-            user-select: none;
-            background: #FFFFFF;
-            color: #3A3A3A;
-            border: 1px solid #DFE7EE;
-            transition: 0.2s ease;
-        }
-
-        .role-toggle.active {
-            background: #0A6EF2;
-            color: white;
-            border-color: #0A6EF2;
-            box-shadow: 0 4px 10px rgba(10, 110, 242, 0.3);
-        }
-
-        /* Input with icon */
-        .input-with-icon {
-            position: relative;
-        }
-
-        .btn-primary {
-            background: #0A6EF2 !important;
-            border-color: #0A6EF2 !important;
-            border-radius: 8px;
-        }
-
-        .btn-primary:hover {
-            background: #0857C5 !important;
-        }
-
-        label {
-            font-weight: 500;
-            color: #3A3A3A;
-        }
-
-        .error-msg {
-            font-size: 12px;
-        }
-    </style>
+    <link rel="stylesheet" href="static/css/auth.css">
 </head>
 
 <body>
 
-    <div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
-        <div class="card col-md-5 p-4 rounded-4 shadow-md">
-
-            <h2 class="text-center mb-4">Sign In</h2>
+    <div class="auth-wrapper">
+        <div class="auth-card">
+            <div class="text-center mb-4">
+                <div class="bg-primary bg-gradient rounded-4 p-2 d-inline-flex align-items-center justify-content-center text-white shadow-sm mb-3"
+                    style="width: 50px; height: 50px;">
+                    <i class="fa-solid fa-eye fs-4"></i>
+                </div>
+                <h2 class="fw-bold mb-1">Welcome Back!</h2>
+                <p class="text-muted">Sign in to your Myopia Study Portal account.</p>
+            </div>
 
             <form id="loginForm">
                 <div class="mb-3">
                     <label class="form-label">Username/Email</label>
-                    <input type="text" id="username" class="form-control" required>
+                    <input type="text" id="username" class="form-control" required autocomplete="username">
                     <div class="invalid-feedback">
-                        Please enter a valid email address.
+                        Please enter your username or email.
                     </div>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">Password</label>
-                    <div class="input-with-icon position-relative">
-                        <input type="password" id="password" class="form-control" required>
+                    <div class="input-with-icon">
+                        <input type="password" id="password" class="form-control" required autocomplete="current-password">
                         <div class="invalid-feedback">
-                            Password must be at least 8 characters long.
+                            Please enter your password.
                         </div>
-
-                        <i class="bi bi-eye toggle-password position-absolute top-50 end-0 translate-middle-y me-3"
-                            id="togglePassword" style="cursor: pointer; z-index: 10;"></i>
+                        <i class="bi bi-eye toggle-password" id="togglePassword"></i>
                     </div>
                 </div>
 
@@ -118,110 +58,21 @@
                     <div class="form-check">
                         <input type="checkbox" class="form-check-input" id="rememberMe" name="remember">
                         <label class="form-check-label" for="rememberMe">Remember me</label>
-                    </div><br>
+                    </div>
                     <a href="#" class="small text-primary fw-semibold" onclick="forgotPassword()">Forgot password?</a>
                 </div>
                 <button type="submit" class="btn btn-primary w-100 py-2">Sign In</button>
-                <div id="loginError" class="text-danger small mt-2 d-none"></div>
+                <div id="loginError" class="text-danger small mt-3 d-none text-center"></div>
 
-                <div class="text-center mt-3">
-                    New Member? <a href="signup.html" class="text-primary fw-semibold">Sign Up</a>
+                <div class="text-center mt-4">
+                    New Member? <a href="signup.html" class="text-primary fw-semibold">Create an account</a>
                 </div>
             </form>
         </div>
     </div>
     
-    <script>
-        const pwd = document.getElementById("password");
-        const toggle = document.getElementById("togglePassword");
-
-        toggle.addEventListener("click", () => {
-            pwd.type = pwd.type === "password" ? "text" : "password";
-            toggle.classList.toggle("bi-eye");
-            toggle.classList.toggle("bi-eye-slash");
-        });
-
-        function forgotPassword() {
-            alert("Password reset feature will be added soon.");
-        }
-
-        document.getElementById("loginForm").addEventListener("submit", async (e) => {
-            e.preventDefault();
-
-            const usernameInput = document.getElementById("username");
-            const passwordInput = document.getElementById("password");
-            const rememberCheckbox = document.getElementById("rememberMe");
-            const errorBox = document.getElementById("loginError");
-
-            errorBox.classList.add("d-none"); // Hide previous errors
-            errorBox.innerText = "";
-
-            const username = usernameInput.value.trim();
-            const password = passwordInput.value;
-            const remember = rememberCheckbox.checked;
-
-            // Simple client-side validation
-            let isValid = true;
-            if (!username) {
-                usernameInput.classList.add("is-invalid");
-                isValid = false;
-            } else {
-                usernameInput.classList.remove("is-invalid");
-            }
-
-            if (!password || password.length < 8) {
-                passwordInput.classList.add("is-invalid");
-                isValid = false;
-            } else {
-                passwordInput.classList.remove("is-invalid");
-            }
-
-            if (!isValid) {
-                errorBox.innerText = "Please correct the form errors.";
-                errorBox.classList.remove("d-none");
-                return;
-            }
-
-            try {
-                const res = await fetch("http://127.0.0.1:8000/api/login/", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ username, password })
-                });
-
-                const data = await res.json(); // Always try to parse JSON, even on error, to get details
-
-                if (res.ok) {
-                    // Save tokens and user role
-                    localStorage.setItem("access", data.access);
-                    localStorage.setItem("refresh", data.refresh);
-                    localStorage.setItem("role", data.user.role); // Store role explicitly
-
-                    if (remember) {
-                        localStorage.setItem("rememberMe", "1");
-                    } else {
-                        localStorage.removeItem("rememberMe");
-                    }
-
-                    // Redirect based on role
-                    window.location.href =
-                        data.user.role === "admin"
-                            ? "admin_dash.html"
-                            : "user_dash.html";
-
-                } else {
-                    // Handle API errors
-                    const errorMessage = data.detail || data.error || "Login failed. Please check your credentials.";
-                    errorBox.innerText = errorMessage;
-                    errorBox.classList.remove("d-none");
-                }
-            } catch (err) {
-                console.error("Network or parsing error:", err);
-                errorBox.innerText = "Network error. Please try again.";
-                errorBox.classList.remove("d-none");
-            }
-        });
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="static/js/login.js"></script>
 
 </body>
 

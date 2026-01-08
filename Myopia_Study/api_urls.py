@@ -1,6 +1,9 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from . import api_auth, api_forms, api_students, api_admin
 
+router = DefaultRouter()
+router.register(r'admin/users', api_admin.UserViewSet, basename='user')
 
 urlpatterns = [
     # Auth
@@ -21,14 +24,12 @@ urlpatterns = [
     path("forms/submit-followup/", api_forms.submit_followup_form, name='submit-followup'),
 
     # Admin Dashboard
+    path("", include(router.urls)),
     path("admin/overview/", api_admin.admin_overview),
     path("admin/students/", api_admin.admin_students_list),
     path("admin/student/<str:student_id>/", api_admin.admin_student_detail),
-    path("admin/users/", api_admin.admin_users_list),
-    path("admin/user/<int:user_id>/", api_admin.admin_user_detail, name='admin-user-detail'),
     path("admin/user/<int:user_id>/reset-password/", api_admin.admin_reset_password, name='admin-reset-password'),
     path("admin/user/<int:user_id>/force-logout/", api_admin.admin_force_logout, name='admin-force-logout'),
-    path("admin/create-admin/", api_admin.create_admin),
     
     # Export
     path("admin/export/excel/", api_admin.ExportClinicalDataView.as_view(), name='export-excel'),

@@ -16,10 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-
+from Myopia_Project import views # Import the views module
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("api/", include("Myopia_Study.api_urls")),
-    
+    path("admin-dashboard/", views.admin_dashboard_view, name="admin_dashboard"), # New path for admin dashboard
 ]

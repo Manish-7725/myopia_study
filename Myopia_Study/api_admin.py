@@ -27,29 +27,29 @@ def admin_overview(request):
         "missed_followups": ClinicalVisit.objects.filter(visit_type="FOLLOW_UP", visit_date__lt=today).count(),
     })
 
-@api_view(["GET"])
-@permission_classes([IsAdminUser])
-def admin_users_list(request):
-    users = User.objects.all()
-    serializer = UserSerializer(users, many=True)
-    return Response(serializer.data)
+from rest_framework import viewsets
+from .serializers import SignupSerializer
 
-@api_view(["POST"])
-@permission_classes([IsAdminUser])
-def create_admin(request):
-    serializer = SignupSerializer(data=request.data)
+class UserViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAdminUser]
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
-    if not serializer.is_valid():
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def create(self, request, *args, **kwargs):
+        serializer = SignupSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    user = serializer.save()
-    user.is_staff = True
-    user.save()
+        user = serializer.save()
+        role = request.data.get("role")
+        if role == 'Admin':
+            user.is_staff = True
+            user.save()
 
-    return Response(
-        {"message": "Admin created successfully"},
-        status=status.HTTP_201_CREATED
-    )
+        return Response(
+            {"message": "User created successfully"},
+            status=status.HTTP_201_CREATED
+        )
 
 @api_view(["GET", "PUT", "DELETE"])
 @permission_classes([IsAdminUser])
@@ -75,8 +75,6 @@ def admin_user_detail(request, user_id):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == "DELETE":
-        if user.is_staff: # Prevent deleting admin users through this endpoint
-            return Response({"error": "Cannot delete admin users via this endpoint."}, status=status.HTTP_403_FORBIDDEN)
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
