@@ -584,6 +584,8 @@ class GetEndpointsTests(TestCase):
     """Test GET endpoints for retrieving data"""
 
     def setUp(self):
+        Student.objects.all().delete()
+        User.objects.all().delete()
         self.client = APIClient()
         self.user = User.objects.create_user(
             username='testgetuser',

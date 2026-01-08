@@ -26,9 +26,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = []
+
 
 
 # Application definition
@@ -61,12 +61,16 @@ MIDDLEWARE = [
 
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000').split(',')
+
+# In production, set CORS_ALLOWED_ORIGINS in your .env file to a comma-separated list of your frontend domains.
+# Example: CORS_ALLOWED_ORIGINS=https://your-frontend-domain.com,https://www.your-frontend-domain.com
+
 # Static and templates (simple)
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [
-    BASE_DIR / "frontend",
+    BASE_DIR / "frontend/static",
 ]
 
 # If you will serve frontend from /var/www/myopia_frontend in production, set STATICFILES_DIRS accordingly.
@@ -76,8 +80,6 @@ STATICFILES_DIRS = [
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
-    'DEFAULT_AUTHENTICATION_CLASSES': (
         'Myopia_Study.authentication.CookieJWTAuthentication', # Use the new class
     ),
     'DEFAULT_PERMISSION_CLASSES': (
@@ -95,9 +97,9 @@ ROOT_URLCONF = 'Myopia_Project.urls'
 TIME_ZONE = 'Asia/Kolkata'
 USE_TZ = True
 
-# In development, allow localhost
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
-# ALLOWED_HOSTS = ['.onrender.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
+# In production, set ALLOWED_HOSTS in your .env file to a comma-separated list of your domain names.
+# Example: ALLOWED_HOSTS=.your-domain.com,your-domain.com
 
 
 TEMPLATES = [
@@ -125,11 +127,11 @@ import sys
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'myopia_database',  # <-- must not be None
-        'USER': 'myopia_user',
-        'PASSWORD': 'your_password',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': os.environ.get('DB_NAME', 'myopia_database'),
+        'USER': os.environ.get('DB_USER', 'myopia_user'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'your_password'),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
     }
 }
 
@@ -163,8 +165,12 @@ AUTH_PASSWORD_VALIDATORS = [
 
 from datetime import timedelta
 
+# Session timeout: 90 minutes (5400 seconds)
+SESSION_COOKIE_AGE = 5400
+SESSION_SAVE_EVERY_REQUEST = True
+
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=90),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 
     "AUTH_HEADER_TYPES": ("Bearer",),  # MUST match frontend

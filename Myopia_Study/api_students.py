@@ -1,6 +1,8 @@
+
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 from django.shortcuts import get_object_or_404
 from django.utils.timezone import localdate
 from .models import Student, ClinicalVisit
@@ -20,7 +22,11 @@ def user_students(request):
             "gender": s.gender,
             "last_visit": visits.order_by("-visit_date").values_list("visit_date", flat=True).first() or "No visits",
         })
-    return Response(data)
+
+    paginator = PageNumberPagination()
+    paginator.page_size = 10
+    result = paginator.paginate_queryset(data, request)
+    return paginator.get_paginated_response(result)
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
@@ -33,19 +39,22 @@ def user_student_visits(request, student_id):
     } for v in visits])
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
 def user_forms(request):
     visits = ClinicalVisit.objects.filter(visit_type="BASELINE").order_by("-visit_date")
     data = []
     for v in visits:
         data.append({
-            "student_id": v.student.student_id,
-            "date_submitted": v.visit_date,
-            "student_name": v.student.name or "Unknown",
+            "id": v.student.student_id,  # Changed to match JS expectation
+            "visit_date": v.visit_date,  # Changed to match JS expectation
+            "name": v.student.name or "Unknown",  # Changed to match JS expectation
             "school_name": v.student.school_name or "",
             "status": "Completed",
         })
-    return Response(data)
+
+    paginator = PageNumberPagination()
+    paginator.page_size = 10
+    result = paginator.paginate_queryset(data, request)
+    return paginator.get_paginated_response(result)
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
@@ -59,7 +68,7 @@ def user_recent_activity(request):
             "date": v.visit_date,
             "action_text": "View Entry",
         })
-    return Response(data)
+    return Response(data)  # Recent activity doesn't need pagination as it's limited to 20 items
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
@@ -81,4 +90,8 @@ def user_followups(request):
             "last_visit": v.visit_date,
             "status": status,
         })
-    return Response(data)
+
+    paginator = PageNumberPagination()
+    paginator.page_size = 10
+    result = paginator.paginate_queryset(data, request)
+    return paginator.get_paginated_response(result)

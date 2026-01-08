@@ -153,9 +153,9 @@ schools = ["A.G. Public School", "Adarsh Public School", "Adarsh Shiksha Niketan
 BASE_URL = "http://localhost:8000/api/forms/submit-student/"
 # IMPORTANT: Replace with a valid access token obtained after logging in to the frontend.
 # You can usually find this in your browser's developer tools (Application -> Local Storage).
-ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3NjAxMzMwLCJpYXQiOjE3Njc1OTc3MzAsImp0aSI6IjY0ZTNiMjBhYmFiNTQzMTE4ZWUzNjY5MWFlNDA4ZTFmIiwidXNlcl9pZCI6IjEifQ.puiOeSl7MAGD9vLFqEZ634EnLhoUrbIOiTFWNs_KK6o" 
+ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3NzgzNjkzLCJpYXQiOjE3Njc3ODAwOTMsImp0aSI6IjlkYjkzMjlmMDFiZDQxODFhZjkyNGY3ZTI5ZDVjYzYyIiwidXNlcl9pZCI6IjIifQ.mZnB2YJYpYH7mK6pG5h_nlKG7vP92hg1_obvNYkmuVI" 
 
-NUM_ENTRIES = 600
+NUM_ENTRIES = 1000
 
 # --- Helper Functions for Data Generation ---
 

@@ -25,11 +25,26 @@
 <body>
 
     <!-- Sidebar Overlay for Mobile -->
-    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+    <div class="sidebar-overlay"></div>
 
     <!-- SIDEBAR -->
-    <aside id="sidebar">
-        <button class="btn-close-sidebar" onclick="toggleSidebar()"><i class="fa-solid fa-xmark"></i></button>
+    <aside id="sidebar" style="overflow-y: auto; max-height: 100vh;">
+    <style>
+        #sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+        #sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        #sidebar::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+        }
+        #sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+    </style>
+        <button class="btn-close-sidebar"><i class="fa-solid fa-xmark"></i></button>
         <div class="sidebar-brand">
             <div class="bg-primary bg-gradient rounded-4 p-2 d-flex align-items-center justify-content-center text-white shadow-sm"
                 style="width: 44px; height: 44px;">
@@ -126,11 +141,11 @@
         <nav class="main-navbar">
             <div class="d-flex align-items-center">
                 <!-- Mobile Toggle -->
-                <button class="btn btn-light d-lg-none me-3" onclick="toggleSidebar()">
+                <button class="btn btn-light d-lg-none me-3" id="mobileSidebarToggle">
                     <i class="fa fa-bars"></i>
                 </button>
                 <!-- Desktop Toggle -->
-                <button class="btn btn-light d-none d-lg-block me-3" onclick="toggleSidebar()">
+                <button class="btn btn-light d-none d-lg-block me-3" id="desktopSidebarToggle">
                     <i class="fa-solid fa-bars-staggered"></i>
                 </button>
                 <h5 class="mb-0 fw-bold d-none d-sm-block text-secondary fs-6"> <i
@@ -297,201 +312,316 @@
                                 </div>
                                 <div>
                                     <h3 class="fw-bold mb-1 text-dark" id="activeClinicians">--</h3>
-                                    <span class="text-muted fw-medium small">Active Today</span>
+                                    <span class="text-muted fw-medium small">Active Users Today</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Follow-Ups Overdue -->
+
+
+                    <!-- Forms Submitted Today -->
                     <div class="col-md-6 col-lg-3 metric-card-wrapper">
                         <div class="card h-100 border-0">
                             <div class="card-body metric-card">
-                                <div class="metric-icon bg-soft-red">
-                                    <i class="bi bi-exclamation-triangle-fill"></i>
+                                <div class="metric-icon bg-soft-orange">
+                                    <i class="bi bi-file-earmark-check-fill"></i>
                                 </div>
                                 <div>
-                                    <h3 class="fw-bold mb-1 text-dark" id="overdueFollowups">--</h3>
-                                    <span class="text-muted fw-medium small">Overdue</span>
+                                    <h3 class="fw-bold mb-1 text-dark" id="formsSubmittedToday">--</h3>
+                                    <span class="text-muted fw-medium small">Forms Submitted Today</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Alerts Panel -->
+                <!-- Recent Activity Table -->
                 <div class="row g-4 mb-5">
-                    <div class="col-lg-8">
+                    <div class="col-12">
                         <div class="card border-0 shadow-sm">
                             <div class="card-header bg-white border-bottom-0 py-4">
                                 <div class="d-flex align-items-center">
-                                    <div class="rounded-circle bg-warning bg-opacity-10 p-2 me-3">
-                                        <i class="bi bi-bell-fill text-warning fs-5"></i>
+                                    <div class="rounded-circle bg-info bg-opacity-10 p-2 me-3">
+                                        <i class="bi bi-clock-history text-info fs-5"></i>
                                     </div>
                                     <div>
-                                        <h5 class="mb-1 fw-bold text-dark">System Alerts</h5>
-                                        <p class="text-muted small mb-0">Critical issues requiring attention</p>
+                                        <h5 class="mb-1 fw-bold text-dark">Recent Activity</h5>
+                                        <p class="text-muted small mb-0">Latest system activities and user actions</p>
                                     </div>
                                 </div>
                             </div>
                             <div class="card-body p-0">
-                                <div class="list-group list-group-flush" id="alertsList">
-                                    <!-- Critical Alerts -->
-                                    <div class="list-group-item border-0 px-4 py-3">
-                                        <div class="d-flex align-items-start">
-                                            <div class="badge bg-danger me-3 mt-1">
-                                                <i class="bi bi-exclamation-triangle-fill"></i>
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <h6 class="mb-1 fw-bold text-dark">Overdue Follow-ups</h6>
-                                                <p class="text-muted small mb-2">12 students have missed their scheduled follow-up appointments</p>
-                                                <small class="text-danger fw-medium">Critical - Requires immediate attention</small>
-                                            </div>
-                                            <button class="btn btn-sm btn-outline-danger">View Details</button>
-                                        </div>
-                                    </div>
-
-                                    <div class="list-group-item border-0 px-4 py-3">
-                                        <div class="d-flex align-items-start">
-                                            <div class="badge bg-warning me-3 mt-1">
-                                                <i class="bi bi-person-dash-fill"></i>
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <h6 class="mb-1 fw-bold text-dark">Inactive Users</h6>
-                                                <p class="text-muted small mb-2">3 clinicians haven't logged in for 7+ days</p>
-                                                <small class="text-warning fw-medium">Monitor user activity</small>
-                                            </div>
-                                            <button class="btn btn-sm btn-outline-warning">Review Users</button>
-                                        </div>
-                                    </div>
-
-                                    <div class="list-group-item border-0 px-4 py-3">
-                                        <div class="d-flex align-items-start">
-                                            <div class="badge bg-info me-3 mt-1">
-                                                <i class="bi bi-shield-exclamation"></i>
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <h6 class="mb-1 fw-bold text-dark">Data Validation Warnings</h6>
-                                                <p class="text-muted small mb-2">8 forms contain incomplete or inconsistent data</p>
-                                                <small class="text-info fw-medium">Review data quality</small>
-                                            </div>
-                                            <button class="btn btn-sm btn-outline-info">Check Forms</button>
-                                        </div>
-                                    </div>
+                                <div class="table-responsive">
+                                    <table class="table table-custom mb-0" id="recentActivityTable">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th class="ps-4" style="width: 60px;">Type</th>
+                                                <th style="width: 150px;">Timestamp</th>
+                                                <th>User</th>
+                                                <th>Action</th>
+                                                <th>Details</th>
+                                                <th style="width: 100px;" class="text-end pe-4">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="recentActivityBody">
+                                            <!-- Recent activities will be populated here by JS -->
+                                            <tr>
+                                                <td class="ps-4">
+                                                    <div class="badge bg-success bg-opacity-75">
+                                                        <i class="bi bi-person-plus-fill"></i>
+                                                    </div>
+                                                </td>
+                                                <td class="small text-muted">2 hours ago</td>
+                                                <td class="fw-medium">Dr. Sarah Johnson</td>
+                                                <td class="fw-medium">User Created</td>
+                                                <td class="small text-muted">Account for Dr. Emily Chen activated</td>
+                                                <td class="text-end pe-4">
+                                                    <span class="badge bg-success">Success</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-4">
+                                                    <div class="badge bg-primary bg-opacity-75">
+                                                        <i class="bi bi-file-earmark-check-fill"></i>
+                                                    </div>
+                                                </td>
+                                                <td class="small text-muted">3 days ago</td>
+                                                <td class="fw-medium">Dr. Patricia Taylor</td>
+                                                <td class="fw-medium">Form Submitted</td>
+                                                <td class="small text-muted">Clinical data for Student ID: STU-2024-112</td>
+                                                <td class="text-end pe-4">
+                                                    <span class="badge bg-success">Success</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-4">
+                                                    <div class="badge bg-warning bg-opacity-75">
+                                                        <i class="bi bi-pencil-square"></i>
+                                                    </div>
+                                                </td>
+                                                <td class="small text-muted">3 days ago</td>
+                                                <td class="fw-medium">Dr. Christopher Martinez</td>
+                                                <td class="fw-medium">Record Updated</td>
+                                                <td class="small text-muted">Corrected demographic info for Liam Johnson</td>
+                                                <td class="text-end pe-4">
+                                                    <span class="badge bg-success">Success</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-4">
+                                                    <div class="badge bg-info bg-opacity-75">
+                                                        <i class="bi bi-search"></i>
+                                                    </div>
+                                                </td>
+                                                <td class="small text-muted">4 days ago</td>
+                                                <td class="fw-medium">Dr. Amanda White</td>
+                                                <td class="fw-medium">Search Performed</td>
+                                                <td class="small text-muted">Advanced search by multiple criteria</td>
+                                                <td class="text-end pe-4">
+                                                    <span class="badge bg-info">Info</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-4">
+                                                    <div class="badge bg-success bg-opacity-75">
+                                                        <i class="bi bi-person-plus-fill"></i>
+                                                    </div>
+                                                </td>
+                                                <td class="small text-muted">4 days ago</td>
+                                                <td class="fw-medium">Dr. Kevin Rodriguez</td>
+                                                <td class="fw-medium">User Created</td>
+                                                <td class="small text-muted">Account for Dr. Rachel Green activated</td>
+                                                <td class="text-end pe-4">
+                                                    <span class="badge bg-success">Success</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-4">
+                                                    <div class="badge bg-primary bg-opacity-75">
+                                                        <i class="bi bi-file-earmark-check-fill"></i>
+                                                    </div>
+                                                </td>
+                                                <td class="small text-muted">5 days ago</td>
+                                                <td class="fw-medium">Dr. Michelle Thompson</td>
+                                                <td class="fw-medium">Form Submitted</td>
+                                                <td class="small text-muted">Clinical data for Student ID: STU-2024-156</td>
+                                                <td class="text-end pe-4">
+                                                    <span class="badge bg-success">Success</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-4">
+                                                    <div class="badge bg-warning bg-opacity-75">
+                                                        <i class="bi bi-pencil-square"></i>
+                                                    </div>
+                                                </td>
+                                                <td class="small text-muted">5 days ago</td>
+                                                <td class="fw-medium">Dr. Daniel Harris</td>
+                                                <td class="fw-medium">Record Updated</td>
+                                                <td class="small text-muted">Updated ocular measurements for Sophia Davis</td>
+                                                <td class="text-end pe-4">
+                                                    <span class="badge bg-success">Success</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-4">
+                                                    <div class="badge bg-info bg-opacity-75">
+                                                        <i class="bi bi-search"></i>
+                                                    </div>
+                                                </td>
+                                                <td class="small text-muted">6 days ago</td>
+                                                <td class="fw-medium">Dr. Jessica Clark</td>
+                                                <td class="fw-medium">Search Performed</td>
+                                                <td class="small text-muted">Filtered students by school and age</td>
+                                                <td class="text-end pe-4">
+                                                    <span class="badge bg-info">Info</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-4">
+                                                    <div class="badge bg-success bg-opacity-75">
+                                                        <i class="bi bi-calendar-plus-fill"></i>
+                                                    </div>
+                                                </td>
+                                                <td class="small text-muted">6 days ago</td>
+                                                <td class="fw-medium">Dr. Brian Lewis</td>
+                                                <td class="fw-medium">Follow-up Scheduled</td>
+                                                <td class="small text-muted">Scheduled 6-month checkup for Oliver Taylor</td>
+                                                <td class="text-end pe-4">
+                                                    <span class="badge bg-success">Success</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-4">
+                                                    <div class="badge bg-primary bg-opacity-75">
+                                                        <i class="bi bi-file-earmark-check-fill"></i>
+                                                    </div>
+                                                </td>
+                                                <td class="small text-muted">1 week ago</td>
+                                                <td class="fw-medium">Dr. Samantha Walker</td>
+                                                <td class="fw-medium">Form Submitted</td>
+                                                <td class="small text-muted">Clinical data for Student ID: STU-2024-203</td>
+                                                <td class="text-end pe-4">
+                                                    <span class="badge bg-success">Success</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-4">
+                                                    <div class="badge bg-warning bg-opacity-75">
+                                                        <i class="bi bi-pencil-square"></i>
+                                                    </div>
+                                                </td>
+                                                <td class="small text-muted">1 week ago</td>
+                                                <td class="fw-medium">Dr. Matthew Hall</td>
+                                                <td class="fw-medium">Record Updated</td>
+                                                <td class="small text-muted">Modified lifestyle questionnaire for Ava Martinez</td>
+                                                <td class="text-end pe-4">
+                                                    <span class="badge bg-success">Success</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-4">
+                                                    <div class="badge bg-info bg-opacity-75">
+                                                        <i class="bi bi-search"></i>
+                                                    </div>
+                                                </td>
+                                                <td class="small text-muted">1 week ago</td>
+                                                <td class="fw-medium">Dr. Ashley Young</td>
+                                                <td class="fw-medium">Search Performed</td>
+                                                <td class="small text-muted">Bulk export preparation query</td>
+                                                <td class="text-end pe-4">
+                                                    <span class="badge bg-info">Info</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-4">
+                                                    <div class="badge bg-success bg-opacity-75">
+                                                        <i class="bi bi-person-plus-fill"></i>
+                                                    </div>
+                                                </td>
+                                                <td class="small text-muted">8 days ago</td>
+                                                <td class="fw-medium">Dr. Ryan King</td>
+                                                <td class="fw-medium">User Created</td>
+                                                <td class="small text-muted">Account for Dr. Natalie Scott activated</td>
+                                                <td class="text-end pe-4">
+                                                    <span class="badge bg-success">Success</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-4">
+                                                    <div class="badge bg-primary bg-opacity-75">
+                                                        <i class="bi bi-file-earmark-check-fill"></i>
+                                                    </div>
+                                                </td>
+                                                <td class="small text-muted">8 days ago</td>
+                                                <td class="fw-medium">Dr. Lauren Adams</td>
+                                                <td class="fw-medium">Form Submitted</td>
+                                                <td class="small text-muted">Clinical data for Student ID: STU-2024-267</td>
+                                                <td class="text-end pe-4">
+                                                    <span class="badge bg-success">Success</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-4">
+                                                    <div class="badge bg-warning bg-opacity-75">
+                                                        <i class="bi bi-pencil-square"></i>
+                                                    </div>
+                                                </td>
+                                                <td class="small text-muted">9 days ago</td>
+                                                <td class="fw-medium">Dr. Tyler Baker</td>
+                                                <td class="fw-medium">Record Updated</td>
+                                                <td class="small text-muted">Updated environmental factors for Noah Garcia</td>
+                                                <td class="text-end pe-4">
+                                                    <span class="badge bg-success">Success</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-4">
+                                                    <div class="badge bg-info bg-opacity-75">
+                                                        <i class="bi bi-search"></i>
+                                                    </div>
+                                                </td>
+                                                <td class="small text-muted">9 days ago</td>
+                                                <td class="fw-medium">Dr. Hannah Nelson</td>
+                                                <td class="fw-medium">Search Performed</td>
+                                                <td class="small text-muted">Follow-up status overview query</td>
+                                                <td class="text-end pe-4">
+                                                    <span class="badge bg-info">Info</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-4">
+                                                    <div class="badge bg-success bg-opacity-75">
+                                                        <i class="bi bi-calendar-plus-fill"></i>
+                                                    </div>
+                                                </td>
+                                                <td class="small text-muted">10 days ago</td>
+                                                <td class="fw-medium">Dr. Ethan Carter</td>
+                                                <td class="fw-medium">Follow-up Scheduled</td>
+                                                <td class="small text-muted">Annual review scheduled for Isabella Rodriguez</td>
+                                                <td class="text-end pe-4">
+                                                    <span class="badge bg-success">Success</span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-4">
-                        <div class="card border-0 shadow-sm">
-                            <div class="card-header bg-white border-bottom-0 py-4">
-                                <div class="d-flex align-items-center">
-                                    <div class="rounded-circle bg-success bg-opacity-10 p-2 me-3">
-                                        <i class="bi bi-clock-history text-success fs-5"></i>
-                                    </div>
-                                    <div>
-                                        <h5 class="mb-1 fw-bold text-dark">Recent Actions</h5>
-                                        <p class="text-muted small mb-0">Latest admin activities</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-body p-0">
-                                <div class="list-group list-group-flush" id="recentActionsList">
-                                    <div class="list-group-item border-0 px-4 py-3">
-                                        <div class="d-flex align-items-start">
-                                            <div class="badge bg-success bg-opacity-75 me-3 mt-1">
-                                                <i class="bi bi-person-plus-fill"></i>
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <h6 class="mb-1 fw-bold text-dark small">User Created</h6>
-                                                <p class="text-muted small mb-1">Dr. Sarah Johnson account activated</p>
-                                                <small class="text-muted">2 hours ago</small>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="list-group-item border-0 px-4 py-3">
-                                        <div class="d-flex align-items-start">
-                                            <div class="badge bg-primary bg-opacity-75 me-3 mt-1">
-                                                <i class="bi bi-file-earmark-lock-fill"></i>
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <h6 class="mb-1 fw-bold text-dark small">Form Locked</h6>
-                                                <p class="text-muted small mb-1">Student ID: STU-2024-045 finalized</p>
-                                                <small class="text-muted">4 hours ago</small>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="list-group-item border-0 px-4 py-3">
-                                        <div class="d-flex align-items-start">
-                                            <div class="badge bg-info bg-opacity-75 me-3 mt-1">
-                                                <i class="bi bi-pencil-square"></i>
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <h6 class="mb-1 fw-bold text-dark small">Record Edited</h6>
-                                                <p class="text-muted small mb-1">Clinical data updated for Alice Johnson</p>
-                                                <small class="text-muted">6 hours ago</small>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="list-group-item border-0 px-4 py-3">
-                                        <div class="d-flex align-items-start">
-                                            <div class="badge bg-warning bg-opacity-75 me-3 mt-1">
-                                                <i class="bi bi-calendar-plus-fill"></i>
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <h6 class="mb-1 fw-bold text-dark small">Follow-up Scheduled</h6>
-                                                <p class="text-muted small mb-1">New appointment for Bob Smith</p>
-                                                <small class="text-muted">8 hours ago</small>
-                                            </div>
-                                        </div>
-                                    </div>
+                            <div class="card-footer bg-white border-top-0 py-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted fw-medium">Showing recent 5 activities</small>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="viewAllActivities()">
+                                        <i class="bi bi-eye me-1"></i>View All Activities
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Recent Activity -->
-                <div class="card border-0 bg-transparent shadow-none">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h4 class="fw-bold text-dark m-0">Recent Activity</h4>
-                        <div class="input-group bg-white rounded-3 shadow-sm border"
-                            style="width: 300px; overflow: hidden;">
-                            <span class="input-group-text bg-white border-0 ps-3"><i
-                                    class="bi bi-search text-muted"></i></span>
-                            <input type="text" id="recentSearchInput" class="form-control border-0 bg-white shadow-none"
-                                placeholder="Search activity...">
-                        </div>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-custom">
-                            <thead>
-                                <tr>
-                                    <th class="ps-4">Student Name</th>
-                                    <th>Activity</th>
-                                    <th>Date</th>
-                                    <th class="text-end pe-4">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="recentActivityList">
-                                <!-- JS Populated -->
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mt-5">
-                        <small class="text-muted fw-medium" id="recentPaginationInfo">Showing 0 entries</small>
-                        <div class="btn-group shadow-sm">
-                            <button class="btn btn-white border px-3" id="recentPrevBtn" onclick="prevRecentPage()"><i
-                                    class="bi bi-chevron-left"></i></button>
-                            <button class="btn btn-white border px-3" id="recentNextBtn" onclick="nextRecentPage()"><i
-                                    class="bi bi-chevron-right"></i></button>
-                        </div>
-                    </div>
-                </div>
+
+
             </section>
 
             <!-- ===================== STUDENTS ===================== -->
@@ -515,6 +645,17 @@
                         <button class="btn btn-primary" onclick="showMergeDuplicates()">
                             <i class="bi bi-arrow-left-right me-2"></i>Merge Duplicates
                         </button>
+                    </div>
+                </div>
+
+                <!-- Student Management Overview -->
+                <div class="alert alert-info border-0 bg-soft-blue mb-4">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-person-lines-fill text-primary fs-4 me-3"></i>
+                        <div>
+                            <h6 class="mb-1 text-primary fw-bold">Student Management Capabilities</h6>
+                            <p class="mb-0 small">Effortlessly view and manage all student records. Utilize the search and filter options to find specific students, and identify or merge duplicate entries to maintain data integrity.</p>
+                        </div>
                     </div>
                 </div>
 
@@ -654,6 +795,17 @@
                         <button class="btn btn-primary" onclick="switchFormState('entry')">
                             <i class="bi bi-plus-lg me-2"></i>New Entry
                         </button>
+                    </div>
+                </div>
+
+                <!-- Forms & Data Control Overview -->
+                <div class="alert alert-info border-0 bg-soft-blue mb-4">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-file-earmark-bar-graph text-primary fs-4 me-3"></i>
+                        <div>
+                            <h6 class="mb-1 text-primary fw-bold">Comprehensive Form & Data Management</h6>
+                            <p class="mb-0 small">Access and review all submitted clinical forms. Utilize powerful filtering options by user, date, and submission status, and open any form in a read-only mode for detailed review.</p>
+                        </div>
                     </div>
                 </div>
 
@@ -1622,6 +1774,17 @@
                 </button>
             </div>
 
+            <!-- Follow-Up Management Overview -->
+            <div class="alert alert-info border-0 bg-soft-blue mb-4">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-calendar-check text-primary fs-4 me-3"></i>
+                    <div>
+                        <h6 class="mb-1 text-primary fw-bold">Efficient Follow-Up Tracking</h6>
+                        <p class="mb-0 small">Monitor all scheduled follow-ups, clearly distinguishing between due and overdue appointments. Utilize filtering by date and clinician to manage workload, and override follow-up statuses as needed to reflect real-world progress.</p>
+                    </div>
+                </div>
+            </div>
+
             <div class="card border-0 bg-transparent shadow-none">
                 <div class="card mb-5 border-0 shadow-sm">
                     <div class="card-body p-4">
@@ -1636,14 +1799,24 @@
                                 </div>
                             </div>
                             <div class="col-md-7 text-end">
+                                <div class="row g-3 justify-content-end">
+                                    <div class="col-md-4">
+                                        <select id="followupClinicianFilter" class="form-select">
+                                            <option value="">All Clinicians</option>
+                                            <!-- Populated by JS -->
+                                        </select>
+                                    </div>
+                                    <div class="col-md-auto">
+                                        <button class="btn btn-white border shadow-sm" onclick="applyFollowupFilters()"><i
+                                            class="bi bi-arrow-clockwise me-2"></i> Refresh</button>
+                                    </div>
+                                </div>
                                 <!-- Hidden inputs for JS compat -->
                                 <input type="hidden" id="followupDateFromFilter">
                                 <input type="hidden" id="followupDateToFilter">
                                 <input type="hidden" id="followupDateFilter">
                                 <input type="hidden" id="followupStatusFilter">
                                 <input type="hidden" id="followupSchoolFilter">
-                                <button class="btn btn-white border shadow-sm" onclick="applyFollowupFilters()"><i
-                                        class="bi bi-arrow-clockwise me-2"></i> Refresh</button>
                             </div>
                         </div>
                     </div>
@@ -1697,6 +1870,31 @@
                 </button>
             </div>
 
+            <!-- New actions section for User Management -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold text-dark mb-3">User Management Actions</h5>
+                    <p class="text-muted small">Perform administrative tasks related to user accounts. Specific user actions like activation, deactivation, password reset, and force logout can be performed through the "Admin Overrides" feature for individual users in the table below.</p>
+                    <div class="d-flex flex-wrap gap-3">
+                        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                            <i class="bi bi-person-plus me-2"></i>Create New User
+                        </button>
+                        <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#adminOverrideModal">
+                            <i class="bi bi-toggle-on me-2"></i>Activate / Deactivate
+                        </button>
+                        <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#resetPasswordModal">
+                            <i class="bi bi-key me-2"></i>Reset Passwords
+                        </button>
+                        <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#adminOverrideModal">
+                            <i class="bi bi-box-arrow-right me-2"></i>Force Logout
+                        </button>
+                        <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#adminOverrideModal">
+                            <i class="bi bi-shield-lock me-2"></i>Admin Overrides
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div class="card border-0 bg-transparent shadow-none">
                 <div class="table-responsive">
                     <table class="table table-custom">
@@ -1714,6 +1912,80 @@
                             <!-- Populated by JS -->
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== REPORTS / EXPORT ===================== -->
+        <section id="reports" class="spa-section">
+            <div class="d-flex justify-content-between align-items-center mb-5">
+                <div>
+                    <h2 class="section-title mb-2">Reports & Data Export</h2>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="#"
+                                    onclick="showSection('dashboard', document.getElementById('dashboard-nav'))">Dashboard</a>
+                            </li>
+                            <li class="breadcrumb-item active">Reports</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold text-dark mb-3">Export Options</h5>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label for="exportFormat" class="form-label small fw-bold">Export Format</label>
+                            <select class="form-select" id="exportFormat">
+                                <option value="csv">CSV (Comma Separated Values)</option>
+                                <option value="excel">Excel (XLSX)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Date Range (From)</label>
+                            <input type="date" class="form-control" id="exportDateFrom">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Date Range (To)</label>
+                            <input type="date" class="form-control" id="exportDateTo">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">Select Sections for Export</label>
+                            <div class="d-flex flex-wrap gap-3">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="sectionA" value="A" checked>
+                                    <label class="form-check-label" for="sectionA">Section A (Demographics)</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="sectionB" value="B" checked>
+                                    <label class="form-check-label" for="sectionB">Section B (Behavioral & Lifestyle)</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="sectionC" value="C" checked>
+                                    <label class="form-check-label" for="sectionC">Section C (Environmental Factors)</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="sectionD" value="D" checked>
+                                    <label class="form-check-label" for="sectionD">Section D (Clinical History)</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="sectionE" value="E" checked>
+                                    <label class="form-check-label" for="sectionE">Section E (Awareness & Safety)</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="sectionF" value="F" checked>
+                                    <label class="form-check-label" for="sectionF">Section F (Ocular Examination)</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 mt-4">
+                            <button class="btn btn-primary btn-lg" onclick="downloadCleanDataset()">
+                                <i class="bi bi-download me-2"></i>Download Clean Dataset
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -1747,38 +2019,7 @@
 
     <!-- ===================== MODALS & OVERLAYS ===================== -->
 
-    <!-- Add User Modal -->
-    <div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title fw-bold">Create New User</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="createUserForm" onsubmit="handleCreateUser(event)">
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">Username</label>
-                            <input type="text" name="username" class="form-control" placeholder="e.g. sarah_clinician"
-                                required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">Email</label>
-                            <input type="email" name="email" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">Password</label>
-                            <input type="password" name="password" class="form-control" required>
-                        </div>
-                        <div class="d-flex justify-content-end">
-                            <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary">Create Account</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+
 
     <!-- Add Admin Modal -->
     <div class="modal fade" id="addAdminModal" tabindex="-1" aria-hidden="true">

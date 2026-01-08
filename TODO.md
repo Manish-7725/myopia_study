@@ -1,7 +1,0 @@
-- [x] Update populateMetrics in admin_dash.js to fetch data from /api/admin/overview/ instead of using mockData.metrics
-- [x] Map API response fields to HTML element IDs:
-  - total_students -> totalStudents
-  - total_followups -> totalFollowups
-  - due_this_week -> todayEntries (assuming todayEntries represents followups due this week)
-- [x] Note: totalUsers is not in the API response; keep using mockData.metrics.totalUsers for now
-- [x] Handle API errors gracefully
