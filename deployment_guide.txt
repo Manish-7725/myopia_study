@@ -1,0 +1,246 @@
+### Deployment Plan for Myopia_Analysis Project
+
+This guide provides step-by-step instructions for deploying your Django project with Nginx, Gunicorn, and PostgreSQL on a Linux server (Ubuntu 22.04 LTS is assumed).
+
+**1. Server Setup**
+
+*   **Update System Packages:**
+    ```bash
+    sudo apt update
+    sudo apt upgrade -y
+    ```
+
+*   **Install Essential Software:**
+    ```bash
+    sudo apt install -y python3-pip python3-dev libpq-dev postgresql postgresql-contrib nginx curl python3-venv
+    ```
+    *   `python3-pip`: Python package installer.
+    *   `python3-dev`: Headers and static libraries for Python development.
+    *   `libpq-dev`: PostgreSQL client libraries (needed for `psycopg2-binary`).
+    *   `postgresql postgresql-contrib`: PostgreSQL database server.
+    *   `nginx`: High-performance web server.
+    *   `curl`: Tool for transferring data with URLs.
+    *   `python3-venv`: For creating virtual environments.
+
+*   **Create a new PostgreSQL User and Database:**
+    Switch to the `postgres` user to manage PostgreSQL.
+    ```bash
+    sudo -i -u postgres
+    ```
+    Create a new database user. You will be prompted to enter a username (e.g., `myopia_user`). Answer `y` for superuser privileges (or manage permissions more granularly later).
+    ```bash
+    createuser --interactive
+    ```
+    Create the database for your project.
+    ```bash
+    createdb myopia_database
+    ```
+    Set a strong password for your new database user.
+    ```bash
+    psql
+    ALTER USER myopia_user WITH PASSWORD 'your_secure_password';
+    \q # To quit psql
+    exit # To exit the postgres user session
+    ```
+    *Replace `myopia_user`, `myopia_database`, and `your_secure_password` with your desired credentials. Remember this password.*
+
+**2. Project Setup on Server**
+
+*   **Create Project Directory:**
+    It's good practice to deploy web projects in `/var/www/`.
+    ```bash
+    sudo mkdir -p /var/www/myopia_analysis
+    sudo chown $USER:$USER /var/www/myopia_analysis
+    cd /var/www/myopia_analysis
+    ```
+    *Replace `$USER` with your actual Linux username (e.g., `manish`).*
+
+*   **Clone Your Git Repository:**
+    ```bash
+    git clone <your_repository_url> .
+    ```
+    *Replace `<your_repository_url>` with the actual URL of your Git repository.*
+
+*   **Create and Activate Virtual Environment:**
+    ```bash
+    python3 -m venv venv
+    source venv/bin/activate
+    ```
+    This isolates your project's Python dependencies.
+
+*   **Install Python Dependencies:**
+    ```bash
+    pip install wheel # Install wheel for faster installation
+    pip install -r requirements.txt
+    ```
+
+*   **Create `.env` file:**
+    This file stores your environment variables, which Django will use.
+    ```bash
+    nano .env
+    ```
+    Add the following content, replacing placeholders with your actual values:
+    ```
+    SECRET_KEY='your_very_long_and_random_secret_key'
+    DEBUG=False
+    ALLOWED_HOSTS='your_domain.com,www.your_domain.com,your_server_ip'
+    CORS_ALLOWED_ORIGINS='https://your_frontend_domain.com,https://www.your_frontend_domain.com'
+    DB_NAME='myopia_database'
+    DB_USER='myopia_user'
+    DB_PASSWORD='your_secure_password'
+    DB_HOST='localhost'
+    DB_PORT='5432'
+    ```
+    *   **`SECRET_KEY`**: Generate a strong, unique key using `python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'`.
+    *   **`DEBUG`**: Set to `False` in production for security and performance.
+    *   **`ALLOWED_HOSTS`**: List your domain(s) and server IP address. Django will only serve requests from these hosts.
+    *   **`CORS_ALLOWED_ORIGINS`**: If your frontend is served from a different domain, list it here (comma-separated). If Django serves your frontend, you might list your Django domain here, or adjust `CORS_ALLOW_ALL_ORIGINS` in `settings.py` for simpler setup if needed (not recommended for production).
+    *   **`DB_NAME`, `DB_USER`, `DB_PASSWORD`**: Use the credentials you set up for PostgreSQL.
+    Save and exit (Ctrl+X, Y, Enter).
+
+*   **Collect Static Files:**
+    Django needs to gather all static files (CSS, JS, images) into a single directory for Nginx to serve.
+    ```bash
+    python manage.py collectstatic --noinput
+    ```
+    This will place all static files into `/var/www/myopia_analysis/staticfiles`.
+
+*   **Run Database Migrations:**
+    Apply your database schema changes.
+    ```bash
+    python manage.py makemigrations Myopia_Study # Only if you've added new models or made changes not yet migrated
+    python manage.py migrate
+    ```
+
+*   **Create a Superuser (Optional):**
+    Needed to access the Django admin interface.
+    ```bash
+    python manage.py createsuperuser
+    ```
+
+*   **Test Gunicorn (Optional but Recommended):**
+    Run Gunicorn directly to ensure your application starts without issues.
+    ```bash
+    gunicorn --bind 0.0.0.0:8000 Myopia_Project.wsgi:application
+    ```
+    Open your browser and navigate to `http://your_server_ip:8000`. You should see your Django application. Press `Ctrl+C` in the terminal to stop Gunicorn.
+
+*   **Deactivate Virtual Environment:**
+    ```bash
+    deactivate
+    ```
+
+**3. Gunicorn Setup (Application Server)**
+
+We'll use `systemd` to manage Gunicorn, ensuring it starts automatically and restarts if it crashes.
+
+*   **Create Gunicorn Service File:**
+    ```bash
+    sudo nano /etc/systemd/system/gunicorn.service
+    ```
+    Add the following content:
+    ```ini
+    [Unit]
+    Description=Gunicorn daemon for Myopia_Project
+    After=network.target
+
+    [Service]
+    User=$USER
+    Group=$USER
+    WorkingDirectory=/var/www/myopia_analysis
+    ExecStart=/var/www/myopia_analysis/venv/bin/gunicorn --workers 3 --bind unix:/var/www/myopia_analysis/myopia_analysis.sock Myopia_Project.wsgi:application
+    Restart=always
+
+    [Install]
+    WantedBy=multi-user.target
+    ```
+    *Replace `$USER` with your actual Linux username (e.g., `manish`).*
+    *   `--workers 3`: A good starting point; adjust based on your server's CPU cores.
+    *   `--bind unix:myopia_analysis.sock`: Gunicorn will communicate with Nginx via a Unix socket, which is more efficient than a TCP port on the same machine.
+
+*   **Start and Enable Gunicorn Service:**
+    ```bash
+    sudo systemctl start gunicorn
+    sudo systemctl enable gunicorn
+    sudo systemctl status gunicorn
+    ```
+    Check the status; it should show `active (running)`.
+
+**4. Nginx Setup (Web Server)**
+
+Nginx will serve your static files and proxy requests to Gunicorn for dynamic content.
+
+*   **Create Nginx Configuration File:**
+    ```bash
+    sudo nano /etc/nginx/sites-available/myopia_analysis
+    ```
+    Add the following content:
+    ```nginx
+    server {
+        listen 80;
+        server_name your_domain.com www.your_domain.com your_server_ip;
+
+        location = /favicon.ico { access_log off; log_not_found off; }
+        location /static/ {
+            root /var/www/myopia_analysis;
+            expires 30d; # Cache static files for 30 days
+        }
+
+        location / {
+            include proxy_params;
+            proxy_pass http://unix:/var/www/myopia_analysis/myopia_analysis.sock;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+    ```
+    *Replace `your_domain.com`, `www.your_domain.com`, and `your_server_ip` with your actual domain(s) and server IP address. Ensure your DNS records point to your server.*
+
+*   **Enable Nginx Site and Restart:**
+    Create a symbolic link to enable the site.
+    ```bash
+    sudo ln -s /etc/nginx/sites-available/myopia_analysis /etc/nginx/sites-enabled/
+    sudo nginx -t # Test Nginx configuration for syntax errors
+    sudo systemctl restart nginx
+    ```
+
+**5. Firewall Setup (UFW)**
+
+Configure the Uncomplicated Firewall (UFW) to allow necessary traffic.
+
+*   **Allow Nginx and SSH:**
+    ```bash
+    sudo ufw allow 'Nginx Full' # Allows HTTP (80) and HTTPS (443)
+    sudo ufw allow 'OpenSSH'
+    sudo ufw enable
+    ```
+    Confirm with `y` when prompted.
+
+**6. Install SSL with Certbot (Highly Recommended)**
+
+Secure your website with free SSL/TLS certificates from Let's Encrypt using Certbot.
+
+*   **Install Certbot:**
+    ```bash
+    sudo snap install core; sudo snap refresh core
+    sudo snap install --classic certbot
+    sudo ln -s /snap/bin/certbot /usr/bin/certbot
+    ```
+
+*   **Obtain and Install SSL Certificate:**
+    ```bash
+    sudo certbot --nginx -d your_domain.com -d www.your_domain.com
+    ```
+    Follow the interactive prompts. Certbot will automatically configure Nginx to use the SSL certificate and set up automatic renewal.
+
+**7. Final Checks**
+
+*   **Access Your Website:** Open your domain (e.g., `https://your_domain.com`) in a web browser.
+*   **Check Logs:**
+    *   Nginx error logs: `sudo tail -f /var/log/nginx/error.log`
+    *   Gunicorn logs: `sudo journalctl -u gunicorn`
+    *   Django application logs (if configured in `settings.py`)
+
+This comprehensive guide should help you deploy your Myopia_Analysis project successfully.

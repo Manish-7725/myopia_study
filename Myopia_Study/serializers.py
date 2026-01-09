@@ -12,19 +12,30 @@ class SignupSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
     class Meta:
         model = User
-        fields = ("username", "email", "password")
+        fields = ("username", "email", "password", "first_name", "last_name")
     def create(self, validated_data):
-        return User.objects.create_user(**validated_data)
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data['email'],
+            password=validated_data['password'],
+            first_name=validated_data.get('first_name', ''),
+            last_name=validated_data.get('last_name', '')
+        )
+        return user
 
 class UserSerializer(serializers.ModelSerializer):
     role = serializers.SerializerMethodField()
+    full_name = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ("username", "email", "role", "date_joined", "last_login")
+        fields = ("username", "email", "full_name", "role", "date_joined", "last_login")
 
     def get_role(self, obj):
         return "Admin" if obj.is_staff else "User"
+
+    def get_full_name(self, obj):
+        return f"{obj.first_name} {obj.last_name}".strip()
 
 # --- Sub-Section Serializers ---
 class LifestyleBehaviorSerializer(serializers.ModelSerializer):
@@ -38,10 +49,26 @@ class AwarenessSafetySerializer(serializers.ModelSerializer):
 class OcularExaminationSerializer(serializers.ModelSerializer):
     class Meta: model = OcularExamination; exclude = ["visit", "created_at"]
 
+
+
+
 class StudentSerializer(serializers.ModelSerializer):
+    follow_up_number = serializers.SerializerMethodField()
+    last_visit = serializers.SerializerMethodField()
+
     class Meta:
         model = Student
-        fields = ["student_id", "name", "age", "gender", "school_name", "created_at"]
+        fields = ["student_id", "name", "age", "gender", "school_name", "created_at", "status", "follow_up_number", "last_visit"]
+
+    def get_follow_up_number(self, obj):
+        return obj.clinicalvisit_set.filter(visit_type='FOLLOW_UP').count()
+
+    def get_last_visit(self, obj):
+        last_visit = obj.clinicalvisit_set.order_by('-visit_date').first()
+        if last_visit:
+            return last_visit.visit_date
+        return None
+
 
 # --- Main Visit Serializer (With Safety Checks) ---
 class ClinicalVisitSerializer(serializers.ModelSerializer):

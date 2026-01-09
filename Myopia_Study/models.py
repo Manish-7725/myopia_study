@@ -1,4 +1,6 @@
 from django.db import models
+from django.conf import settings
+
 # from django.core.exceptions import ObjectDoesNotExist
 
 # Custom Manager for High-Performance Export
@@ -15,6 +17,12 @@ class ClinicalVisitManager(models.Manager):
 
 # Section A: Demographic Information
 class Student(models.Model):
+    STATUS_CHOICES = (
+        ('active', 'Active'),
+        ('locked', 'Locked'),
+        ('flagged', 'Flagged'),
+        ('inactive', 'Inactive'),
+    )
     student_id = models.CharField(
         max_length=20, unique=True, db_index=True, editable=False
     )
@@ -28,6 +36,7 @@ class Student(models.Model):
     num_siblings = models.PositiveSmallIntegerField(blank=True, null=True)
     birth_order = models.CharField(max_length=20, blank=True, null=True)
     siblings_myopia = models.PositiveSmallIntegerField(blank=True, null=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active')
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -147,3 +156,5 @@ class OcularExamination(models.Model):
     fundus_examination_finding_right_eye = models.TextField(blank=True, null=True)
     fundus_examination_finding_left_eye = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+

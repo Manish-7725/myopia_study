@@ -1,10 +1,14 @@
 # Create a new file: authentication.py
+from typing import Optional, Tuple
+from rest_framework.request import Request
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.tokens import Token
 
 class CookieJWTAuthentication(JWTAuthentication):
-    def authenticate(self, request):
+    def authenticate(self, request: Request) -> Optional[Tuple[object, Token]]:
         header = self.get_header(request)
-        
+        print("HTTP_AUTHORIZATION:", request.META.get('HTTP_AUTHORIZATION')) # Debug print
+
         if header is None:
             # Look for the token in cookies if header is missing
             raw_token = request.COOKIES.get('access_token')

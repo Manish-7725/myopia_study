@@ -153,42 +153,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // --- SIDEBAR TOGGLING LOGIC ---
     const sidebar = document.getElementById('sidebar');
-    const sidebarOverlay = document.querySelector('.sidebar-overlay');
-    const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
-    const desktopSidebarToggle = document.getElementById('desktopSidebarToggle');
-    const closeSidebarBtn = document.querySelector('.btn-close-sidebar');
-    const contentWrapper = document.getElementById('content-wrapper'); // Assuming content-wrapper exists
+    const mobileToggle = document.getElementById('mobileSidebarToggle');
+    const desktopToggle = document.getElementById('desktopSidebarToggle');
+    const closeBtn = document.querySelector('.btn-close-sidebar');
+    const overlay = document.querySelector('.sidebar-overlay');
 
-    // Toggle for mobile
-    if (mobileSidebarToggle) {
-        mobileSidebarToggle.addEventListener('click', () => {
-            sidebar.classList.toggle('show');
-            sidebarOverlay.classList.toggle('show');
-        });
+    const openSidebar = () => {
+        sidebar.classList.add('show');
+        overlay.classList.add('show');
+    };
+
+    const closeSidebar = () => {
+        sidebar.classList.remove('show');
+        overlay.classList.remove('show');
+    };
+
+    if (mobileToggle) {
+        mobileToggle.addEventListener('click', openSidebar);
     }
 
-    // Close on overlay click
-    if (sidebarOverlay) {
-        sidebarOverlay.addEventListener('click', () => {
-            sidebar.classList.remove('show');
-            sidebarOverlay.classList.remove('show');
-        });
+    if (desktopToggle) {
+        desktopToggle.addEventListener('click', openSidebar);
     }
 
-    // Close button inside sidebar (mobile)
-    if (closeSidebarBtn) {
-        closeSidebarBtn.addEventListener('click', () => {
-            sidebar.classList.remove('show');
-            sidebarOverlay.classList.remove('show');
-        });
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeSidebar);
     }
 
-    // Toggle for desktop
-    if (desktopSidebarToggle && contentWrapper) {
-        desktopSidebarToggle.addEventListener('click', () => {
-            sidebar.classList.toggle('collapsed');
-            contentWrapper.classList.toggle('sidebar-collapsed');
-        });
+    if (overlay) {
+        overlay.addEventListener('click', closeSidebar);
     }
 
 

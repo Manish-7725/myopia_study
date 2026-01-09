@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (res.ok) {
                     // BUG FIX: Use 'accessToken' to match the dashboard script
-                    localStorage.setItem("accessToken", data.access);
+                    localStorage.setItem("access_token", data.access);
                     localStorage.setItem("refreshToken", data.refresh);
                     localStorage.setItem("userRole", data.user.role);
 

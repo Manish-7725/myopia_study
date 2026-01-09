@@ -61,12 +61,6 @@ def admin_user_detail(request, user_id):
         return Response(serializer.data)
 
     elif request.method == "PUT":
-        # Handle activation/deactivation
-        if 'is_active' in request.data:
-            user.is_active = request.data['is_active']
-            user.save()
-            return Response({"message": f"User account {'activated' if user.is_active else 'deactivated'} successfully"})
-        
         # Admin overrides or other user property updates
         serializer = UserSerializer(user, data=request.data, partial=True) # Use partial=True for PATCH-like behavior
         if serializer.is_valid():
